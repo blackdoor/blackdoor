@@ -1,4 +1,4 @@
-package util;
+package blackdoor.util;
 
 /**
  * simple object that can be used when verbose output to System.out or

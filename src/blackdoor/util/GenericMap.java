@@ -1,8 +1,6 @@
-package util;
+package blackdoor.util;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * An object that maps String keys to multiple different generic values. A value
