@@ -90,7 +90,7 @@ public final class UserDB implements Serializable, Map<String, User>{
     	OutputStream buffer = new BufferedOutputStream( file );
 		ObjectOutput output = new ObjectOutputStream( buffer );
 		try{
-			output.writeObject(this);
+			output.writeObject(users);
 		}
 		finally{
 			output.close();
