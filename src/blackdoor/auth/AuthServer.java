@@ -3,11 +3,21 @@
  */
 package blackdoor.auth;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import blackdoor.auth.AuthRequest.Operation;
 
 /**
  * @author kAG0
@@ -158,14 +168,94 @@ public class AuthServer {
 		}
 	}
 	class AuthConnectionHandler extends Thread {
-		Socket socket;
-		AuthManager manager;
+		private Socket socket;
+		private AuthManager manager;
+		private OutputStream outputBuffer;
+		private ObjectOutput outputObject;
+		private InputStream inputBuffer;
+		private ObjectInput inputObject;
 		AuthConnectionHandler(Socket socket, AuthManager manager){
 			this.socket = socket;
 			this.manager = manager;
 		}
 		public void run(){
 			System.out.println("herp derp, I should reply");
+			openSocketInput();
+			AuthRequest request = recieveRequest();
+			boolean operationCompleted = false;
+			switch (request.getOperation()) {
+			case ADD:  			operationCompleted=manager.addUser(request.getUserName(), request.getPasswordHash(), request.getRights(), request.getAuthUserName(), request.getAuthPasswordHash());
+                     break;
+			case CHANGENAME:  	operationCompleted=manager.changeUserName(request.getUserName(), request.getNewUserName(), request.getAuthUserName(), request.getAuthPasswordHash());
+                     break;
+			case CHANGEPASSWORD:operationCompleted=manager.changePassword(request.getUserName(), request.getPasswordHash(), request.getNewPasswordHash());
+                     break;
+			case CHECK:  		operationCompleted=manager.checkUser(request.getUserName(), request.getPasswordHash());
+                     break;
+			case REMOVE:  		operationCompleted=manager.removeUser(request.getUserName(), request.getAuthUserName(), request.getAuthPasswordHash());
+                     break;
+                    }
+			AuthReply reply = new AuthReply(operationCompleted, request.getID(), request.getOperation());
+			openSocketOutput();
+			sendReply(reply);
+			try {
+				closeSocket();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		private void openSocketInput(){
+			try {
+				inputObject = new ObjectInputStream(socket.getInputStream());
+				//inputBuffer = new BufferedInputStream(socket.getInputStream());
+				//inputObject = new ObjectInputStream(inputBuffer);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		private void openSocketOutput(){
+			try {
+				outputBuffer = new BufferedOutputStream(socket.getOutputStream());
+				outputObject = new ObjectOutputStream(outputBuffer);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		private AuthRequest recieveRequest(){
+			AuthRequest request = null;
+			try {
+				request = (AuthRequest) inputObject.readObject();
+			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return request;
+		}
+		
+		private void sendReply(AuthReply reply){
+			try {
+				outputObject.writeObject(reply);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		private void closeSocket() throws IOException{
+			System.out.println("attempting to close conneciton from " + socket.getRemoteSocketAddress() + " on " + socket.getLocalPort());
+			try{
+				inputObject.close();
+				inputBuffer.close();
+				outputObject.close();
+				outputBuffer.close();
+				socket.close();
+			}catch(NullPointerException e){
+				System.err.println("Couldn't close connections. Was the connection reset?");
+			}
 		}
 	}
 }

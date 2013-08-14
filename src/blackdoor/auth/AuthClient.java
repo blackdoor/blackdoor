@@ -146,12 +146,17 @@ public class AuthClient {
 		AuthReply reply = null;
 
 		try {
-			openSocket();
+			openSocketOutput();
 		} catch (Exception e1) {
 			return null;
 		}
 		try {
 			sendRequest(request);
+			try {
+				openSocketInput();
+			} catch (Exception e) {
+				return null;
+			}
 			reply = reciveReply();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -171,14 +176,13 @@ public class AuthClient {
 		return blackdoor.util.Hash.getSHA1(string.getBytes());
 	}
 		
-	private void openSocket() throws Exception{
+	private void openSocketOutput() throws Exception{
 		try {
 			socket = new Socket(server, port);
 			System.out.println("connected to " + server + ":" + port);
 			outputBuffer = new BufferedOutputStream(socket.getOutputStream());
 			outputObject = new ObjectOutputStream(outputBuffer);
-			inputBuffer = new BufferedInputStream(socket.getInputStream());
-			inputObject = new ObjectInputStream(inputBuffer);
+			
 		}catch(SocketException e){
 			System.err.println("SocketException: " + e.getMessage());
 			throw new Exception(e.getMessage());
@@ -189,6 +193,19 @@ public class AuthClient {
 			e.printStackTrace();
 		}
 	}
+	private void openSocketInput() throws Exception{
+		try {
+			inputBuffer = new BufferedInputStream(socket.getInputStream());
+			inputObject = new ObjectInputStream(inputBuffer);
+		} catch(SocketException e){
+			System.err.println("SocketException: " + e.getMessage());
+			throw new Exception(e.getMessage());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private void sendRequest(AuthRequest request) throws IOException{
 		outputObject.writeObject(request);
 	}

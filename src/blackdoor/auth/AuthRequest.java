@@ -45,6 +45,10 @@ public class AuthRequest implements Serializable {
 		return id;
 	}
 	
+	public Operation getOperation(){
+		return operation;
+	}
+	
 	/**
 	 * @return the userName
 	 */

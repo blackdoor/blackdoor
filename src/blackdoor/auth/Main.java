@@ -15,7 +15,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		AuthClient client = new AuthClient("localhost", 1234);
-		client.checkUser("orign", "pass");
+		System.out.println(client.checkUser("orign", "pass"));
 		
 	}
 
