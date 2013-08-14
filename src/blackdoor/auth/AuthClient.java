@@ -28,7 +28,7 @@ public class AuthClient {
 	private String server;
 	private int port;
 	private Socket socket;
-	private OutputStream outputBuffer;
+	//private OutputStream outputBuffer;
 	private ObjectOutput outputObject;
 	private InputStream inputBuffer;
 	private ObjectInput inputObject;
@@ -147,16 +147,18 @@ public class AuthClient {
 
 		try {
 			openSocketOutput();
+			openSocketInput();
+			//outputObject.writeObject(new String("message"));
 		} catch (Exception e1) {
 			return null;
 		}
 		try {
 			sendRequest(request);
-			try {
-				openSocketInput();
-			} catch (Exception e) {
-				return null;
-			}
+//			try {
+//				openSocketInput();
+//			} catch (Exception e) {
+//				return null;
+//			}
 			reply = reciveReply();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -180,8 +182,9 @@ public class AuthClient {
 		try {
 			socket = new Socket(server, port);
 			System.out.println("connected to " + server + ":" + port);
-			outputBuffer = new BufferedOutputStream(socket.getOutputStream());
-			outputObject = new ObjectOutputStream(outputBuffer);
+			outputObject = new ObjectOutputStream(socket.getOutputStream());
+			//outputBuffer = new BufferedOutputStream(socket.getOutputStream());
+			//outputObject = new ObjectOutputStream(outputBuffer);
 			
 		}catch(SocketException e){
 			System.err.println("SocketException: " + e.getMessage());
@@ -220,7 +223,7 @@ public class AuthClient {
 			inputObject.close();
 			inputBuffer.close();
 			outputObject.close();
-			outputBuffer.close();
+			//outputBuffer.close();
 			socket.close();
 		}catch(NullPointerException e){
 			System.err.println("Couldn't close connections. Was the connection reset?");

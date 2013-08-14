@@ -3,6 +3,7 @@
  */
 package blackdoor.auth;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import blackdoor.auth.User.UserRight;
@@ -27,9 +28,11 @@ public class AuthManager {
 	AuthManager(String userDBFile) throws IOException{
 		try {
 			users = new UserDB(userDBFile);
-		} catch (ClassNotFoundException e) {
-			System.err.println("Specified file is corrupted or not a UserDB.");
-			e.printStackTrace();
+		} catch (ClassNotFoundException | FileNotFoundException e) {
+			System.err.println(e);
+			System.err.println(userDBFile + " is corrupted or not a UserDB.");
+			System.exit(1);
+			//e.printStackTrace();
 		}
 	}
 	

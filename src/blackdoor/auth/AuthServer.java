@@ -36,10 +36,10 @@ public class AuthServer {
 		
 		for(int i = 0; i < args.length; i++){
 			if(args[i].equals("-port")){
-				server.setPort(Integer.parseInt(args[i++]));
+				server.setPort(Integer.parseInt(args[++i]));
 			}
 			else if(args[i].equalsIgnoreCase("-db")){
-				server.createManager( args[i++]);
+				server.createManager( args[++i]);
 			}
 			else System.err.println("invalid argument:" + args[i]);
 		}
@@ -85,9 +85,8 @@ public class AuthServer {
 	}
 	
 	private void acceptConnections(){
-		ArrayList<AuthConnectionHandler> threads = new ArrayList<AuthConnectionHandler>();
+		Socket socket = null;
 		while(running){
-			Socket socket = null;
 			try {
 				socket = serverSocket.accept();
 				System.out.println("connection accepted from " + socket.getRemoteSocketAddress());
@@ -97,7 +96,6 @@ public class AuthServer {
 			}
 			AuthConnectionHandler handler = new AuthConnectionHandler(socket, authManager);
 			handler.start();
-			threads.add(handler);
 		}
 	}
 	
@@ -170,7 +168,7 @@ public class AuthServer {
 	class AuthConnectionHandler extends Thread {
 		private Socket socket;
 		private AuthManager manager;
-		private OutputStream outputBuffer;
+		//private OutputStream outputBuffer;
 		private ObjectOutput outputObject;
 		private InputStream inputBuffer;
 		private ObjectInput inputObject;
@@ -181,6 +179,7 @@ public class AuthServer {
 		public void run(){
 			System.out.println("herp derp, I should reply");
 			openSocketInput();
+			openSocketOutput();
 			AuthRequest request = recieveRequest();
 			boolean operationCompleted = false;
 			switch (request.getOperation()) {
@@ -196,7 +195,7 @@ public class AuthServer {
                      break;
                     }
 			AuthReply reply = new AuthReply(operationCompleted, request.getID(), request.getOperation());
-			openSocketOutput();
+			//openSocketOutput();
 			sendReply(reply);
 			try {
 				closeSocket();
@@ -209,17 +208,19 @@ public class AuthServer {
 		
 		private void openSocketInput(){
 			try {
-				inputObject = new ObjectInputStream(socket.getInputStream());
-				//inputBuffer = new BufferedInputStream(socket.getInputStream());
-				//inputObject = new ObjectInputStream(inputBuffer);
+				System.out.println(socket.getRemoteSocketAddress());
+				//inputObject = new ObjectInputStream(socket.getInputStream());
+				inputBuffer = new BufferedInputStream(socket.getInputStream());
+				inputObject = new ObjectInputStream(inputBuffer);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		private void openSocketOutput(){
 			try {
-				outputBuffer = new BufferedOutputStream(socket.getOutputStream());
-				outputObject = new ObjectOutputStream(outputBuffer);
+				outputObject = new ObjectOutputStream(socket.getOutputStream());
+				//outputBuffer = new BufferedOutputStream(socket.getOutputStream());
+				//outputObject = new ObjectOutputStream(outputBuffer);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -251,7 +252,7 @@ public class AuthServer {
 				inputObject.close();
 				inputBuffer.close();
 				outputObject.close();
-				outputBuffer.close();
+				//outputBuffer.close();
 				socket.close();
 			}catch(NullPointerException e){
 				System.err.println("Couldn't close connections. Was the connection reset?");
