@@ -54,11 +54,12 @@ public class AuthClient {
 		request.setPasswordHash(Hash(password));
 		int id = request.getID();
 		AuthReply reply = null;
-		try {
-			reply = exchange(request);
-		} catch (IOException e) {
-			e.printStackTrace();
+		reply = exchange(request);
+		if(reply == null){
+			System.err.println("Reply from server not recieved.");
+			return false;
 		}
+			
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -72,11 +73,7 @@ public class AuthClient {
 		request.setNewPasswordHash(Hash(newPassword));
 		int id = request.getID();
 		AuthReply reply = null;
-		try {
-			reply = exchange(request);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		reply = exchange(request);
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -92,11 +89,7 @@ public class AuthClient {
 		request.setAuthPasswordHash(Hash(authPassword));
 		int id = request.getID();
 		AuthReply reply = null;
-		try {
-			reply = exchange(request);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		reply = exchange(request);
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -110,11 +103,7 @@ public class AuthClient {
 		request.setAuthPasswordHash(Hash(authPassword));
 		int id = request.getID();
 		AuthReply reply = null;
-		try {
-			reply = exchange(request);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		reply = exchange(request);
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -129,29 +118,35 @@ public class AuthClient {
 		request.setAuthPasswordHash(Hash(authPassword));
 		int id = request.getID();
 		AuthReply reply = null;
-		try {
-			reply = exchange(request);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		reply = exchange(request);
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
-	public AuthReply exchange(AuthRequest request) throws IOException{
-		openSocket();	
+
+	public AuthReply exchange(AuthRequest request) {
 		AuthReply reply = null;
+
+		try {
+			openSocket();
+		} catch (Exception e1) {
+			return null;
+		}
 		try {
 			sendRequest(request);
 			reply = reciveReply();
-		}catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally{
-			closeSocket();
+		} finally {
+			try {
+				closeSocket();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return reply;
 	}
@@ -160,7 +155,7 @@ public class AuthClient {
 		return blackdoor.util.Hash.getSHA1(string.getBytes());
 	}
 		
-	private void openSocket(){
+	private void openSocket() throws Exception{
 		try {
 			socket = new Socket(server, port);
 			System.out.println("connected to " + server + ":" + port);
@@ -169,7 +164,8 @@ public class AuthClient {
 			inputBuffer = new BufferedInputStream(socket.getInputStream());
 			inputObject = new ObjectInputStream(inputBuffer);
 		}catch(SocketException e){
-			System.err.println(e.getMessage());
+			System.err.println("SocketException: " + e.getMessage());
+			throw new Exception(e.getMessage());
 		} catch (UnknownHostException e) {
 			//e.printStackTrace();
 			System.err.println("could not find " + server);
@@ -181,7 +177,10 @@ public class AuthClient {
 		outputObject.writeObject(request);
 	}
 	private AuthReply reciveReply() throws ClassNotFoundException, IOException{
-		return (AuthReply) inputObject.readObject();
+		if(inputObject != null){
+			return (AuthReply) inputObject.readObject();
+		}
+		else return null;
 	}
 	private void closeSocket() throws IOException{
 		try{

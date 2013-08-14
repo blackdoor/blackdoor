@@ -94,11 +94,11 @@ public class AuthServer {
 	private void listen(int port){
 		try {
 			serverSocket = new ServerSocket(port);
-			System.out.println("listenting on port: " + port);
+			System.out.println("listenting on port: " + port +".");
 		} catch (IOException e) {
-			System.err.println("could not listen on port: " + port);
-			e.printStackTrace();
-			System.out.println("server will now quit.");
+			System.err.println("Could not listen on port: " + port + ".");
+			//e.printStackTrace();
+			System.err.println("Server will now quit.");
 			System.exit(-1);
 		}
 	}
@@ -165,7 +165,7 @@ public class AuthServer {
 			this.manager = manager;
 		}
 		public void run(){
-			
+			System.out.println("herp derp, I should reply");
 		}
 	}
 }
