@@ -74,6 +74,10 @@ public class AuthClient {
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
+		if(reply == null){
+			System.err.println("Reply from server not recieved.");
+			return false;
+		}
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -90,6 +94,10 @@ public class AuthClient {
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
+		if(reply == null){
+			System.err.println("Reply from server not recieved.");
+			return false;
+		}
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -104,6 +112,10 @@ public class AuthClient {
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
+		if(reply == null){
+			System.err.println("Reply from server not recieved.");
+			return false;
+		}
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
@@ -119,6 +131,10 @@ public class AuthClient {
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
+		if(reply == null){
+			System.err.println("Reply from server not recieved.");
+			return false;
+		}
 		if(reply.getId() == id){
 			return reply.isOperationCompleted();
 		}
