@@ -22,7 +22,7 @@ import blackdoor.auth.User.UserRight;
 
 /**
  * @author kAG0
- *
+ * API for a remote client to authenticate, add, remove or modify users in a database
  */
 public class AuthClient {
 	private String server;
@@ -48,6 +48,12 @@ public class AuthClient {
 		this.port = port;
 		//openSocket();
 	}
+	/**
+	 * check if there exists a user with given username and password in the database
+	 * @param userName
+	 * @param password
+	 * @return true if user exists with given username and password, else false
+	 */
 	public boolean checkUser(String userName, String password){
 		AuthRequest request = new AuthRequest(Operation.CHECK);
 		request.setUserName(userName);
@@ -66,6 +72,14 @@ public class AuthClient {
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
+	
+	/**
+	 * change a user's password. The current password must be known.
+	 * @param userName
+	 * @param oldPassword
+	 * @param newPassword
+	 * @return true if password has been changed, else false
+	 */
 	public boolean changePassword(String userName, String oldPassword, String newPassword){
 		AuthRequest request = new AuthRequest(Operation.CHANGEPASSWORD);
 		request.setUserName(userName);
@@ -84,6 +98,16 @@ public class AuthClient {
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
+	
+	/**
+	 * add a user to the database under the authority of authUser
+	 * @param userName
+	 * @param password
+	 * @param rights rights that the new user should have
+	 * @param authUserName
+	 * @param authPassword
+	 * @return true if user has been created, else false
+	 */
 	public boolean addUser(String userName, String password,UserRight[] rights, String authUserName, String authPassword) {
 		AuthRequest request = new AuthRequest(Operation.ADD);
 		request.setUserName(userName);
@@ -104,6 +128,14 @@ public class AuthClient {
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
+	
+	/**
+	 * Remove user with userName. only users with REMOVE rights may remove users, however users may remove themselves without remove rights.
+	 * @param userName
+	 * @param authUserName authUserName should be the same as userName if user wants to remove themselves
+	 * @param authPassword
+	 * @return true if user has been removed, else false
+	 */
 	public boolean removeUser(String userName, String authUserName, String authPassword) {
 		AuthRequest request = new AuthRequest(Operation.REMOVE);
 		request.setUserName(userName);
@@ -122,6 +154,15 @@ public class AuthClient {
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
+	
+	/**
+	 * change user's name. this also changes the key under which the user is found in the database
+	 * @param oldUserName
+	 * @param newUserName
+	 * @param authUserName
+	 * @param authPassword
+	 * @return true if name has been changed, else false
+	 */
 	public boolean changeUserName(String oldUserName, String newUserName, String authUserName, String authPassword){
 		AuthRequest request = new AuthRequest(Operation.CHANGENAME);
 		request.setUserName(oldUserName);
@@ -141,7 +182,12 @@ public class AuthClient {
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
 	}
-
+	
+	/**
+	 * a simple clean method that handles all networking
+	 * @param request the request to be sent to the server
+	 * @return returns the server's reply to request
+	 */
 	public AuthReply exchange(AuthRequest request) {
 		AuthReply reply = null;
 

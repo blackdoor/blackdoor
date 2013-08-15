@@ -35,7 +35,11 @@ public class AuthManager {
 			//e.printStackTrace();
 		}
 	}
-	
+	/**
+	 * save the userDB to a file
+	 * @param file file location to save to
+	 * @throws IOException
+	 */
 	public void save(String file) throws IOException{
 		users.saveDB(file);
 	}
@@ -58,6 +62,13 @@ public class AuthManager {
 		return false;
 	}
 	
+	/**
+	 * change the password of given user
+	 * @param userName
+	 * @param oldPasswordHash
+	 * @param newPasswordHash
+	 * @return true if password has been changed, else false
+	 */
 	public boolean changePassword(String userName, byte[] oldPasswordHash, byte[] newPasswordHash){
 		if(checkUser(userName, oldPasswordHash)){
 			User userFromDB = users.get(userName);
