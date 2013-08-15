@@ -16,7 +16,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import blackdoor.auth.User.UserRight;
 import blackdoor.util.Hash;
@@ -28,14 +28,14 @@ public final class UserDB implements Serializable, Map<String, User>{
 	private static final long serialVersionUID = -5916108480866658192L;
 	private static final String saveLocation = "";
 	private static final String saveName = "UserDB.object";
-	private TreeMap<String, User> users;
+	private ConcurrentSkipListMap<String, User> users;
 	private static final String originPassword = "pass";
 	/**
 	 * create a DB with one user, named origin who has all rights
 	 * origin user should be removed after a new user with ADD rights is created
 	 */
 	public UserDB() {
-		users = new TreeMap<String, User>();
+		users = new ConcurrentSkipListMap<String, User>();
 		User origin = new User("origin", Hash.getSHA1(originPassword.getBytes()));
 		origin.addUserRight(UserRight.ADD);
 		origin.addUserRight(UserRight.CHANGE);
@@ -53,7 +53,7 @@ public final class UserDB implements Serializable, Map<String, User>{
     	InputStream buffer = new BufferedInputStream( file );
 		ObjectInput input = new ObjectInputStream( buffer );
 		try {
-			TreeMap<String, User> readObject = (TreeMap<String, User>) input.readObject();
+			ConcurrentSkipListMap<String, User> readObject = (ConcurrentSkipListMap<String, User>) input.readObject();
 			users = readObject;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
