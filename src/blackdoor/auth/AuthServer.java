@@ -14,10 +14,13 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.UUID;
 
 import blackdoor.auth.AuthRequest.Operation;
+import blackdoor.util.Hash;
 
 /**
  * @author kAG0
@@ -28,6 +31,7 @@ public class AuthServer {
 	private ServerSocket serverSocket;
 	private boolean running = true;
 	private AuthManager authManager;
+	public static final String greeting = "hello server";
 
 	/**
 	 * @param args
@@ -189,6 +193,7 @@ public class AuthServer {
 			}
 		}
 	}
+	
 	/**
 	 * a multi-threaded connection handler for incoming connections
 	 * @author kAG0
@@ -208,52 +213,80 @@ public class AuthServer {
 		}
 
 		public void run() {
-			System.out.println("herp derp, I should reply");
+			//System.out.println("herp derp, I should reply");
 			openSocketInput();
 			openSocketOutput();
-			AuthRequest request = recieveRequest();
-			boolean operationCompleted = false;
-			switch (request.getOperation()) {
-			case ADD:
-				operationCompleted = manager.addUser(request.getUserName(),
-						request.getPasswordHash(), request.getRights(),
-						request.getAuthUserName(),
-						request.getAuthPasswordHash());
-				break;
-			case CHANGENAME:
-				operationCompleted = manager.changeUserName(
-						request.getUserName(), request.getNewUserName(),
-						request.getAuthUserName(),
-						request.getAuthPasswordHash());
-				break;
-			case CHANGEPASSWORD:
-				operationCompleted = manager.changePassword(
-						request.getUserName(), request.getPasswordHash(),
-						request.getNewPasswordHash());
-				break;
-			case CHECK:
-				operationCompleted = manager.checkUser(request.getUserName(),
-						request.getPasswordHash());
-				break;
-			case REMOVE:
-				operationCompleted = manager.removeUser(request.getUserName(),
-						request.getAuthUserName(),
-						request.getAuthPasswordHash());
-				break;
-			}
-			AuthReply reply = new AuthReply(operationCompleted,
-					request.getID(), request.getOperation());
-			// openSocketOutput();
-			sendReply(reply);
-			try {
-				closeSocket();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if(recieveGreeting()){
+				try {
+					byte[] challenge = sendChallenge();
+					AuthRequest request = recieveRequest();
+					boolean operationCompleted = false;
+					if(request == null) throw new IOException("Request not recieved.");
+					switch (request.getOperation()) {
+					case ADD:
+						operationCompleted = manager.addUser(request.getUserName(),
+								request.getPasswordHash(), request.getRights(),
+								request.getAuthUserName(),
+								request.getAuthPasswordHash(), challenge);
+						break;
+					case CHANGENAME:
+						operationCompleted = manager.changeUserName(
+								request.getUserName(), request.getNewUserName(),
+								request.getAuthUserName(),
+								request.getAuthPasswordHash(), challenge);
+						break;
+					case CHANGEPASSWORD:
+						operationCompleted = manager.changePassword(
+								request.getUserName(), request.getPasswordHash(), challenge,
+								request.getNewPasswordHash());
+						break;
+					case CHECK:
+						operationCompleted = manager.checkUser(request.getUserName(),
+								request.getPasswordHash(), challenge);
+						break;
+					case REMOVE:
+						operationCompleted = manager.removeUser(request.getUserName(),
+								request.getAuthUserName(),
+								request.getAuthPasswordHash(), challenge);
+						break;
+					}
+					AuthReply reply = new AuthReply(operationCompleted,
+							request.getID(), request.getOperation());
+					// openSocketOutput();
+					sendReply(reply);
+					closeSocket();
+				} catch (IOException e) {
+					System.err.print(e);
+					//e.printStackTrace();
+				}
+			} else{
+				try {
+					closeSocket();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		}
 
+		private boolean recieveGreeting(){
+			try {
+				String greeting = (String) inputObject.readObject();
+				return greeting.equalsIgnoreCase(AuthServer.greeting);
+			} catch (ClassNotFoundException | IOException e) {
+				System.err.println("Probelm encountered with greeting.");
+				return false;
+			}
+			
+		}
+		
+		private byte[] sendChallenge() throws IOException{
+			byte[] challenge = Hash.getSHA1(UUID.randomUUID().toString().getBytes());
+			outputObject.writeObject(challenge);
+			return challenge;
+		}
+		
 		private void openSocketInput() {
 			try {
 				System.out.println(socket.getRemoteSocketAddress());
@@ -279,9 +312,14 @@ public class AuthServer {
 
 		private AuthRequest recieveRequest() {
 			AuthRequest request = null;
-			try {
+			try{
 				request = (AuthRequest) inputObject.readObject();
-			} catch (ClassNotFoundException | IOException e) {
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch(SocketException e2){
+				System.err.println(e2);
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

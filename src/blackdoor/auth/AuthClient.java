@@ -17,8 +17,10 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import blackdoor.auth.AuthRequest.CSHI;
 import blackdoor.auth.AuthRequest.Operation;
 import blackdoor.auth.User.UserRight;
+import blackdoor.util.Hash;
 
 /**
  * @author kAG0
@@ -32,6 +34,7 @@ public class AuthClient {
 	private ObjectOutput outputObject;
 	private InputStream inputBuffer;
 	private ObjectInput inputObject;
+	public static final String greeting = "hello server";
 	
 //	AuthClient(){
 //		server = null;
@@ -58,6 +61,7 @@ public class AuthClient {
 		AuthRequest request = new AuthRequest(Operation.CHECK);
 		request.setUserName(userName);
 		request.setPasswordHash(Hash(password));
+		request.setIndicator(CSHI.NORMAL);
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
@@ -85,6 +89,7 @@ public class AuthClient {
 		request.setUserName(userName);
 		request.setPasswordHash(Hash(oldPassword));
 		request.setNewPasswordHash(Hash(newPassword));
+		request.setIndicator(CSHI.NORMAL);
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
@@ -115,6 +120,7 @@ public class AuthClient {
 		request.setRights(rights);
 		request.setAuthUserName(authUserName);
 		request.setAuthPasswordHash(Hash(authPassword));
+		request.setIndicator(CSHI.AUTH);
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
@@ -141,6 +147,7 @@ public class AuthClient {
 		request.setUserName(userName);
 		request.setAuthUserName(authUserName);
 		request.setAuthPasswordHash(Hash(authPassword));
+		request.setIndicator(CSHI.AUTH);
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
@@ -169,6 +176,7 @@ public class AuthClient {
 		request.setNewUserName(newUserName);
 		request.setAuthUserName(authUserName);
 		request.setAuthPasswordHash(Hash(authPassword));
+		request.setIndicator(CSHI.AUTH);
 		int id = request.getID();
 		AuthReply reply = null;
 		reply = exchange(request);
@@ -181,6 +189,22 @@ public class AuthClient {
 		}
 		else System.err.println("id of reply does not match id of sent request.");
 		return false;
+	}
+	
+	private void sendGreeting() throws IOException{
+		outputObject.writeObject(greeting);
+	}
+	
+	/**
+	 * get the given password hash salted with given salt for use with CHAP
+	 * @param salt
+	 * @return the given password hashed and salted with salt
+	 */
+	private static byte[] getSaltyHash(byte[] passwordHash, byte[] salt){
+		byte [] saltedHash = new byte[salt.length + passwordHash.length];
+		System.arraycopy(salt, 0, saltedHash, 0, salt.length);
+		System.arraycopy(passwordHash, 0, saltedHash, salt.length, passwordHash.length);
+		return Hash.getSHA1(saltedHash);
 	}
 	
 	/**
@@ -199,6 +223,20 @@ public class AuthClient {
 			return null;
 		}
 		try {
+			sendGreeting();
+			byte[] challenge = null;
+			challenge = (byte[]) inputObject.readObject();
+			
+			
+			switch(request.getIndicator()){
+			case AUTH:
+				request.setAuthPasswordHash(getSaltyHash(request.getAuthPasswordHash(), challenge));
+				break;
+			case NORMAL:
+				request.setPasswordHash(getSaltyHash(request.getPasswordHash(), challenge));
+				break;
+			}
+			
 			sendRequest(request);
 //			try {
 //				openSocketInput();

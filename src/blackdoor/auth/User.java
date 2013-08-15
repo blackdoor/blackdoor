@@ -80,26 +80,54 @@ public class User implements Serializable {
 	}
 	
 	/**
+	 * get the saved password hash salted with given salt for use with CHAP
+	 * @param salt
+	 * @return the saved password hashed and salted with salt
+	 */
+	public byte[] getSaltyHash(byte[] salt){
+		byte [] saltedHash = new byte[salt.length + passwordHash.length];
+		System.arraycopy(salt, 0, saltedHash, 0, salt.length);
+		System.arraycopy(passwordHash, 0, saltedHash, salt.length, passwordHash.length);
+		return Hash.getSHA1(saltedHash);
+	}
+	
+	/**
 	 * changes the stored password
+	 * @deprecated
 	 * @param currentPassword (hashed)
 	 * @param newPassword (hashed)
 	 * @return true if currentPassword is correct and password has been replaced, else false
 	 */
-	public boolean setPassword(byte[] currentPassword, byte[] newPassword){
+	@Deprecated public boolean setPassword(byte[] currentPassword, byte[] newPassword){
 		if(checkPassword(currentPassword)){
 			this.passwordHash = newPassword;
 			return true;
 		}
 		else return false;
 	}
+	
 	/**
 	 * changes the stored password
+	 * @param currentPassword (hashed)
+	 * @param newPassword (hashed)
+	 * @return true if currentPassword is correct and password has been replaced, else false
+	 */
+	public boolean setPassword(byte[] currentPassword, byte[] salt, byte[] newPassword){
+		if(checkPassword(currentPassword, salt)){
+			this.passwordHash = newPassword;
+			return true;
+		}
+		else return false;
+	}
+	
+	/**
+	 * changes the stored password
+	 * @deprecated
 	 * @param currentPassword
 	 * @param newPassword
 	 * @return true if currentPassword is correct and password has been replaced, else false
 	 */
-	
-	public boolean setPassword(String currentPassword, String newPassword){
+	@Deprecated public boolean setPassword(String currentPassword, String newPassword){
 		if(checkPassword(Hash.getSHA1(currentPassword.getBytes()))){
 			this.passwordHash = Hash.getSHA1(newPassword.getBytes());
 			return true;
@@ -114,12 +142,22 @@ public class User implements Serializable {
 	public boolean checkPassword(byte[] passwordHash){
 		return Arrays.equals(passwordHash, this.passwordHash);
 	}
+	
 	/**
-	 * 
+	 * checks password against a salted password hash
 	 * @param passwordHash
 	 * @return returns true if passwordHash is the same as the stored password hash
 	 */
-	public boolean checkPassword(String passwordHash){
+	public boolean checkPassword(byte[] passwordHash, byte[] salt){
+		return Arrays.equals(passwordHash, getSaltyHash(salt));
+	}
+	
+	/**
+	 * @deprecated
+	 * @param passwordHash
+	 * @return returns true if passwordHash is the same as the stored password hash
+	 */
+	@Deprecated public boolean checkPassword(String passwordHash){
 		String password = Hex.encodeHexString(this.passwordHash);
 		return password.equalsIgnoreCase(passwordHash);
 	}

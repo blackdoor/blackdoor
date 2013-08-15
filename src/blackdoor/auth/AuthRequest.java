@@ -31,14 +31,31 @@ public class AuthRequest implements Serializable {
 	public enum Operation{
 		ADD, REMOVE, CHECK, CHANGENAME, CHANGEPASSWORD
 	}
+	/**
+	 * Challenge Salted Hash Indicator
+	 * to help facilitate CHAP, the CSHI indicates whether passwordHash or authPasswordHash has been salted with the challenge
+	 */
+	public enum CSHI{
+		NORMAL, AUTH
+	}
 	private String userName, authUserName, newUserName;
 	private byte[] passwordHash, authPasswordHash, newPasswordHash;
 	private UserRight[] rights;
 	private int id;
 	private Operation operation;
+	private CSHI indicator;
+	
 	AuthRequest(Operation operation){
 		this.operation = operation;
 		id = (int)(Math.random()*10) * (int)(Math.random()*10);
+	}
+	
+	public CSHI getIndicator(){
+		return indicator;
+	}
+	
+	public void setIndicator(CSHI indicator){
+		this.indicator = indicator;
 	}
 	
 	public int getID(){
