@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import blackdoor.auth.AuthRequest.Operation;
-import blackdoor.util.Hash;
+import blackdoor.util.Crypto;
 
 /**
  * @author kAG0
@@ -45,6 +45,13 @@ public class AuthServer {
 				server.setPort(Integer.parseInt(args[++i]));
 			} else if (args[i].equalsIgnoreCase("-db")) {
 				server.createManager(args[++i]);
+			} else if(args[i].equalsIgnoreCase("-help")){
+				System.out.println(
+"	-db <database>	set database for the server to reference.");
+				System.out.println(
+"	-port <port number>	");
+				System.out.println(
+"					set local port for the server to listen on.");
 			} else
 				System.err.println("invalid argument:" + args[i]);
 		}
@@ -282,7 +289,7 @@ public class AuthServer {
 		}
 		
 		private byte[] sendChallenge() throws IOException{
-			byte[] challenge = Hash.getSHA1(UUID.randomUUID().toString().getBytes());
+			byte[] challenge = Crypto.getSHA1(UUID.randomUUID().toString().getBytes());
 			outputObject.writeObject(challenge);
 			return challenge;
 		}
