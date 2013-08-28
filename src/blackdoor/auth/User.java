@@ -6,7 +6,7 @@ package blackdoor.auth;
 import java.io.Serializable;
 import java.util.Arrays;
 import org.apache.commons.codec.binary.Hex;
-import blackdoor.util.Hash;
+import blackdoor.util.Crypto;
 
 /**
  * @author kAG0
@@ -88,7 +88,7 @@ public class User implements Serializable {
 		byte [] saltedHash = new byte[salt.length + passwordHash.length];
 		System.arraycopy(salt, 0, saltedHash, 0, salt.length);
 		System.arraycopy(passwordHash, 0, saltedHash, salt.length, passwordHash.length);
-		return Hash.getSHA1(saltedHash);
+		return Crypto.getSHA1(saltedHash);
 	}
 	
 	/**
@@ -128,8 +128,8 @@ public class User implements Serializable {
 	 * @return true if currentPassword is correct and password has been replaced, else false
 	 */
 	@Deprecated public boolean setPassword(String currentPassword, String newPassword){
-		if(checkPassword(Hash.getSHA1(currentPassword.getBytes()))){
-			this.passwordHash = Hash.getSHA1(newPassword.getBytes());
+		if(checkPassword(Crypto.getSHA1(currentPassword.getBytes()))){
+			this.passwordHash = Crypto.getSHA1(newPassword.getBytes());
 			return true;
 		}
 		else return false;
