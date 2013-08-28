@@ -45,6 +45,13 @@ public class AuthServer {
 				server.setPort(Integer.parseInt(args[++i]));
 			} else if (args[i].equalsIgnoreCase("-db")) {
 				server.createManager(args[++i]);
+			} else if(args[i].equalsIgnoreCase("-help")){
+				System.out.println(
+"	-db <database>	set database for the server to reference.");
+				System.out.println(
+"	-port <port number>	");
+				System.out.println(
+"					set local port for the server to listen on.");
 			} else
 				System.err.println("invalid argument:" + args[i]);
 		}

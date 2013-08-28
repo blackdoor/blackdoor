@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.apache.commons.codec.binary.Hex;
 
 import blackdoor.auth.User.UserRight;
-import blackdoor.util.Hash;
 
 public class Main {
 
