@@ -252,6 +252,53 @@ public class Crypto {
 		cipher = null;
 	}
 	
+<<<<<<< HEAD
+=======
+	private static byte[] getHash(String algorithm, byte[] input){
+		if(input == null)
+			throw new RuntimeException("input not defined");
+		byte[] output = null;
+		try {
+			MessageDigest mD = MessageDigest.getInstance(algorithm);
+			mD.update(input);
+			output = mD.digest();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return output;
+	}
+	
+	public byte[] getSHA1(){
+		return getSHA1(secretPlain);
+	}
+	
+	public static byte[] getSHA1(byte[] input){
+		return getHash("SHA-1", input);
+	}
+	
+	public String getSHA1String(){
+		return DatatypeConverter.printHexBinary(getSHA1(secretPlain));
+	}
+	public static String getSHA1String(byte[] input){
+		return DatatypeConverter.printHexBinary(getSHA1(input));
+	}
+	
+	public byte[] getSHA256(){
+		return getSHA256(secretPlain);
+	}
+	
+	public static byte[] getSHA256(byte[] input){
+		return getHash("SHA-256", input);
+	}
+	
+	public String getSHA256String(){
+		return DatatypeConverter.printHexBinary(getSHA256(secretPlain));
+	}
+	public static String getSHA256String(byte[] input){
+		return DatatypeConverter.printHexBinary(getSHA256(input));
+	}
+	
+>>>>>>> 9d9698f9317a3bebef22f9421f9ef490de66fa4a
 	public static class EncryptionResult{
 		private byte[] cipherText;
 		private byte[] iv;
