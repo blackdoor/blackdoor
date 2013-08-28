@@ -253,7 +253,10 @@ public class Crypto {
 	}
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 9d9698f9317a3bebef22f9421f9ef490de66fa4a
 	private static byte[] getHash(String algorithm, byte[] input){
 		if(input == null)
 			throw new RuntimeException("input not defined");
@@ -298,6 +301,9 @@ public class Crypto {
 		return DatatypeConverter.printHexBinary(getSHA256(input));
 	}
 	
+<<<<<<< HEAD
+>>>>>>> 9d9698f9317a3bebef22f9421f9ef490de66fa4a
+=======
 >>>>>>> 9d9698f9317a3bebef22f9421f9ef490de66fa4a
 	public static class EncryptionResult{
 		private byte[] cipherText;
