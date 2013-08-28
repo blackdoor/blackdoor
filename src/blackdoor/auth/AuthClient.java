@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
 import blackdoor.auth.AuthRequest.CSHI;
 import blackdoor.auth.AuthRequest.Operation;
 import blackdoor.auth.User.UserRight;
-import blackdoor.util.Crypto;
+import blackdoor.util.Hash;
 
 /**
  * @author kAG0
@@ -204,7 +204,7 @@ public class AuthClient {
 		byte [] saltedHash = new byte[salt.length + passwordHash.length];
 		System.arraycopy(salt, 0, saltedHash, 0, salt.length);
 		System.arraycopy(passwordHash, 0, saltedHash, salt.length, passwordHash.length);
-		return Crypto.getSHA1(saltedHash);
+		return Hash.getSHA1(saltedHash);
 	}
 	
 	/**
@@ -259,7 +259,7 @@ public class AuthClient {
 	}
 	
 	private byte[] Hash(String string){	
-		return blackdoor.util.Crypto.getSHA1(string.getBytes());
+		return Hash.getSHA1(string.getBytes());
 	}
 		
 	private void openSocketOutput() throws Exception{

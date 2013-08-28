@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import blackdoor.auth.AuthRequest.Operation;
-import blackdoor.util.Crypto;
+import blackdoor.util.Hash;
 
 /**
  * @author kAG0
@@ -289,7 +289,7 @@ public class AuthServer {
 		}
 		
 		private byte[] sendChallenge() throws IOException{
-			byte[] challenge = Crypto.getSHA1(UUID.randomUUID().toString().getBytes());
+			byte[] challenge = Hash.getSHA1(UUID.randomUUID().toString().getBytes());
 			outputObject.writeObject(challenge);
 			return challenge;
 		}

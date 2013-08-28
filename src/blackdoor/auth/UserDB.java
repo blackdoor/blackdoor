@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import blackdoor.auth.User.UserRight;
-import blackdoor.util.Crypto;
+import blackdoor.util.Hash;
 
 public final class UserDB implements Serializable, Map<String, User>{
 	/**
@@ -36,7 +36,7 @@ public final class UserDB implements Serializable, Map<String, User>{
 	 */
 	public UserDB() {
 		users = new ConcurrentSkipListMap<String, User>();
-		User origin = new User("origin", Crypto.getSHA1(originPassword.getBytes()));
+		User origin = new User("origin", Hash.getSHA1(originPassword.getBytes()));
 		origin.addUserRight(UserRight.ADD);
 		origin.addUserRight(UserRight.CHANGE);
 		origin.addUserRight(UserRight.REMOVE);
