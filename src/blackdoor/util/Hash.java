@@ -1,5 +1,6 @@
 /**
-*
+*	the cleanness of my commit history was sacrificed in a great battle 
+*	of merge conflicts so that this class could live
 */
 package blackdoor.util;
 
