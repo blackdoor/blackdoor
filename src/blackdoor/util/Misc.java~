@@ -4,8 +4,8 @@ public class Misc {
 	
 	/**
 	 * Performs an XOR operation on two arrays of bytes, byte by byte.
-	 * The returned array will be the same length as the longest parameter array,
-	 * the shorter array will be padded with 0's.
+	 * The returned array will be the same length as the longest parameter array
+	 * the shorter array will be padded with 0's
 	 * @param array1
 	 * @param array2
 	 * @return array1 XOR array2.

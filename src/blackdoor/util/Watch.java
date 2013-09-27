@@ -1,4 +1,5 @@
 package blackdoor.util;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -11,7 +12,7 @@ import java.util.TimeZone;
  * @since 2013-03-10
  * 
  */
-public class Watch {
+public class Watch implements Serializable{
 
 	protected Calendar stupid; // im a terrible person
 	
@@ -23,7 +24,7 @@ public class Watch {
 		stupid = Calendar.getInstance();
 	}
 	
-	/**	instanceiate this with the properties of other
+	/**	instanciate this with the properties of other
 	 * @param other 
 	 */
 	public Watch(Watch other){

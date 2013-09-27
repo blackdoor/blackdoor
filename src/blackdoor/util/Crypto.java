@@ -253,24 +253,24 @@ public class Crypto {
 	}
 	
 	public static class EncryptionResult{
-		private byte[] cipherText;
+		private byte[] output;
 		private byte[] iv;
 		private byte[] salt;
 		/**
-		 * @param cipherText
+		 * @param output
 		 * @param iv
 		 */
-		public EncryptionResult(byte[] cipherText, byte[] iv, byte[] salt) {
+		public EncryptionResult(byte[] output, byte[] iv, byte[] salt) {
 			super();
-			this.cipherText = cipherText;
+			this.output = output;
 			this.iv = iv;
 			this.salt = salt;
 		}
 		/**
 		 * @return the cipherText
 		 */
-		public byte[] getCipherText() {
-			return cipherText;
+		public byte[] getOutput() {
+			return output;
 		}
 		
 		/**
