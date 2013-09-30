@@ -27,12 +27,14 @@ public class Misc {
 			for(byte a:array2){
 				array3[i] = (byte) (a ^ array1[i++]);
 			}
+			//return array1;
 			System.arraycopy(array1, i, array3, i, length-i);
 		}
 		else{
 			for(byte a:array1){
 				array3[i] = (byte) (a ^ array2[i++]);
 			}
+			//return array2;
 			System.arraycopy(array2, i, array3, i, length-i);
 		}
 		return array3;

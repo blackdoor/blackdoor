@@ -79,9 +79,11 @@ public class ExperimentalCrypto {
 	 */
 	public static  EncryptionResult doSHE(byte[] input, byte[] key, byte[] IV){
 		//pad input length to a multiple of 32
-		if(input.length%32 != 0)
+		if(input.length%32 != 0){
+			int length = input.length;
 			input = Misc.XOR(input, new byte[(input.length/32+1)*32]);
-		
+			input[length] = 69;
+		}
 		int numBlocks = input.length/32;
 		
 		//make sure key is at least 128 bits
@@ -111,6 +113,11 @@ public class ExperimentalCrypto {
 		int endIndex = input.length -1 ;
 		while(input[endIndex] == 0){
 			endIndex --;
+			if(input[endIndex] == 69){
+				endIndex--;
+				break;
+			}
+				
 		}
 		byte out[] = new byte[endIndex+1];
 		System.arraycopy(input, 0, out, 0, endIndex+1);
