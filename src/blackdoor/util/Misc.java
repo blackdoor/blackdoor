@@ -21,20 +21,20 @@ public class Misc {
 			length = array2.length;
 			trueIfOne = false;
 		}
-		//byte[] array3 = new byte[length];
+		byte[] array3 = new byte[length];
 		int i = 0;
 		if(trueIfOne){
 			for(byte a:array2){
-				array1[i] = (byte) (a ^ array1[i++]);
+				array3[i] = (byte) (a ^ array1[i++]);
 			}
-			return array1;//System.arraycopy(array1, i, array3, i, length-i);
+			System.arraycopy(array1, i, array3, i, length-i);
 		}
 		else{
 			for(byte a:array1){
-				array2[i] = (byte) (a ^ array2[i++]);
+				array3[i] = (byte) (a ^ array2[i++]);
 			}
-			return array2;//System.arraycopy(array2, i, array3, i, length-i);
+			System.arraycopy(array2, i, array3, i, length-i);
 		}
-		//return array3;
+		return array3;
 	}
 }
