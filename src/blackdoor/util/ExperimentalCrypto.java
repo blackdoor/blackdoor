@@ -99,14 +99,18 @@ public class ExperimentalCrypto {
 			if(IV.length < 32)
 				throw new RuntimeException("IV too short."); //throw an error
 		}
-		
+		byte[] tmp = null;
+		Block block;
 		//loop through each block
 		for(int i = 0; i < numBlocks; i++){
 			//copy block into temp array
-			byte[] tmp = new byte[32];
+			tmp = new byte[32];
 			System.arraycopy(input, i*32, tmp, 0, 32);
 			//copy encrypted block back into input
-			System.arraycopy(getSHEBlock(new Block(i, tmp, IV), key), 0, input, i*32, 32);
+			block = new Block(i, tmp, IV);
+			System.arraycopy(getSHEBlock(block, key), 0, input, i*32, 32);
+			block = null;
+			tmp = null;
 		}
 		
 		//trim any null bytes from end of array

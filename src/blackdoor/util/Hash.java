@@ -29,15 +29,16 @@ this.input = input;
 private static byte[] getHash(String algorithm, byte[] input){
 if(input == null)
 throw new RuntimeException("input not defined");
-byte[] output = null;
+//byte[] output = null;
+MessageDigest mD = null;
 try {
-MessageDigest mD = MessageDigest.getInstance(algorithm);
-mD.update(input);
-output = mD.digest();
+mD = MessageDigest.getInstance(algorithm);
 } catch (NoSuchAlgorithmException e) {
 e.printStackTrace();
 }
-return output;
+mD.update(input);
+return mD.digest();
+//return output;
 }
 
 public byte[] getSHA1(){
