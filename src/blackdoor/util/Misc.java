@@ -1,6 +1,23 @@
 package blackdoor.util;
 
 public class Misc {
+	/**
+	 * 
+	 * @author: Viral Patel
+	 * @description: Prints JVM memory utilization statistics
+	 * @param runtime
+	 */
+	public static void PrintMemInfo(Runtime runtime){
+		int mb = 1024*1024;
+		//Print used memory
+	    System.out.println("Used Memory:"
+	        + (runtime.totalMemory() - runtime.freeMemory()) / mb);
+	    //Print free memory
+	    System.out.println("Free Memory:"
+	        + runtime.freeMemory() / mb);
+	    //Print total available memory
+	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
+	}
 	
 	/**
 	 * Performs an XOR operation on two arrays of bytes, byte by byte.

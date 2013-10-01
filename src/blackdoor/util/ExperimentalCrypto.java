@@ -5,6 +5,7 @@ package blackdoor.util;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -78,11 +79,14 @@ public class ExperimentalCrypto {
 	 * @return An EncryptionResult containing the iv and calculated text.
 	 */
 	public static  EncryptionResult doSHE(byte[] input, byte[] key, byte[] IV){
+		//List inputList;
 		//pad input length to a multiple of 32
 		if(input.length%32 != 0){
 			int length = input.length;
-			input = Misc.XOR(input, new byte[(input.length/32+1)*32]);
+			//Misc.PrintMemInfo(Runtime.getRuntime());
+			input = Arrays.copyOf(input, (input.length/32+1)*32);
 			input[length] = 69;
+			//Misc.PrintMemInfo(Runtime.getRuntime());//System.gc();
 		}
 		int numBlocks = input.length/32;
 		
@@ -99,20 +103,21 @@ public class ExperimentalCrypto {
 			if(IV.length < 32)
 				throw new RuntimeException("IV too short."); //throw an error
 		}
-		byte[] tmp = null;
-		Block block;
+		byte[] tmp = new byte[32];
+		Block block = new Block(0, null, IV);
 		//loop through each block
 		for(int i = 0; i < numBlocks; i++){
 			//copy block into temp array
-			tmp = new byte[32];
 			System.arraycopy(input, i*32, tmp, 0, 32);
 			//copy encrypted block back into input
-			block = new Block(i, tmp, IV);
+			block.setBlockNo(i);
+			block.setText(tmp);
 			System.arraycopy(getSHEBlock(block, key), 0, input, i*32, 32);
-			block = null;
-			tmp = null;
+			
 		}
-		
+		tmp = null;
+		block = null;
+		System.gc();
 		//trim any null bytes from end of array
 		int endIndex = input.length -1 ;
 		while(input[endIndex] == 0){
@@ -123,11 +128,9 @@ public class ExperimentalCrypto {
 			}
 				
 		}
-		byte out[] = new byte[endIndex+1];
-		System.arraycopy(input, 0, out, 0, endIndex+1);
-		input = null;
-		
-		return new EncryptionResult(out, IV, null);
+		//byte out[] = new byte[endIndex+1];
+		//System.arraycopy(input, 0, out, 0, endIndex+1);		
+		return new EncryptionResult(Arrays.copyOf(input, endIndex+1), IV, null);
 	}
 	
 	
@@ -184,6 +187,12 @@ public class ExperimentalCrypto {
 		 */
 		public int getBlockNo() {
 			return blockNo;
+		}
+		/**
+		 * @param blockNo the blockNo to set
+		 */
+		public void setBlockNo(int blockNo) {
+			this.blockNo = blockNo;
 		}
 		
 	}
