@@ -135,6 +135,21 @@ public class Misc {
 		}
 	}
 	/**
+	 * returns a XOR b, leaves a and b unchanged
+	 * uses 3n memory (or more depending on array size and JVM settings) where n is the length of a & b.
+	 * does no error checking to make sure a & b are same length
+	 * @param a
+	 * @param b
+	 * @return a XOR b
+	 */
+	public static byte[] cleanXOR(byte[] a, byte[] b){
+		byte[] c = new byte[a.length];
+		int i=0;
+		for (byte d : a)
+		    c[i] = (byte) (d ^ b[i++]);
+		return c;
+	}
+	/**
 	 * @param a
 	 * @param b
 	 * @param c
