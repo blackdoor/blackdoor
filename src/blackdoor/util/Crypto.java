@@ -3,6 +3,7 @@
  */
 package blackdoor.util;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.AlgorithmParameters;
 import java.security.MessageDigest;
@@ -252,7 +253,7 @@ public class Crypto {
 		cipher = null;
 	}
 	
-	public static class EncryptionResult{
+	public static class EncryptionResult implements Serializable{
 		private byte[] output;
 		private byte[] iv;
 		private byte[] salt;
@@ -266,6 +267,30 @@ public class Crypto {
 			this.iv = iv;
 			this.salt = salt;
 		}
+		
+		public EncryptionResult(byte[] simpleSerial){
+			int ivLength = simpleSerial[0];
+			int outputLength = simpleSerial.length - ivLength - 1;
+			iv = new byte[ivLength];
+			output = new byte[outputLength];
+			System.arraycopy(simpleSerial, 1, iv, 0, ivLength);
+			System.arraycopy(simpleSerial, ivLength + 1, output, 0, outputLength);
+			salt = null;
+		}
+		
+		/**
+		 * needs testing
+		 * @return the encryption result as a byte array in the form (ivLength|iv|ciphertext) 
+		 */
+		public byte[] simpleSerial(){
+			byte[] out = new byte[output.length + iv.length + 1];
+			out[0] = (byte) iv.length;
+			System.arraycopy(iv, 0, out, 1, iv.length);
+			System.arraycopy(output, 0, out, iv.length, output.length);
+			return out;
+		}
+		
+		
 		/**
 		 * @return the cipherText
 		 */

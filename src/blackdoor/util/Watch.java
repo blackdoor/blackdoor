@@ -264,5 +264,28 @@ public class Watch implements Serializable{
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SS zzzz");
 		return df.format(stupid.getTime());
 	}
+	public static class StopWatch{
+		long startTime;
+		public StopWatch(boolean start){
+			if(start){
+				startTime = System.nanoTime();
+			}
+			else startTime = 0;
+		}
+		public void mark(){
+			startTime = System.nanoTime();
+		}
+		public long checkNS(){
+			return System.nanoTime() - startTime;
+		}
+		public double checkS(){
+			double time = System.nanoTime() - startTime;
+			return (double)time / 1000000000.0 ;
+		}
+		public double checkMS(){
+			double time = System.nanoTime() - startTime;
+			return (double)time / 1000000.0 ;
+		}
+	}
 
 }
