@@ -3,7 +3,7 @@ package blackdoor.auth;
 import java.io.Serializable;
 
 import blackdoor.auth.AuthRequest.Operation;
-
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class AuthReply implements Serializable {
 	/**
 	 * 

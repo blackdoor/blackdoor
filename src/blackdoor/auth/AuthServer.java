@@ -26,6 +26,7 @@ import blackdoor.util.Hash;
  * @author kAG0
  * 
  */
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class AuthServer {
 	private int port = 1234;
 	private ServerSocket serverSocket;

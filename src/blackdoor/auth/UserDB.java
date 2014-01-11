@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import blackdoor.auth.User.UserRight;
 import blackdoor.util.Hash;
-
+@Deprecated //See the Portunes project for more features and an SQL user database
 public final class UserDB implements Serializable, Map<String, User>{
 	/**
 	 * 

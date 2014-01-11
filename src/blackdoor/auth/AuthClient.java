@@ -26,6 +26,7 @@ import blackdoor.util.Hash;
  * @author kAG0
  * API for a remote client to authenticate, add, remove or modify users in a database
  */
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class AuthClient {
 	private String server;
 	private int port;

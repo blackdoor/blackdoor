@@ -13,6 +13,7 @@ import blackdoor.auth.User.UserRight;
  * a network request that an operation be preformed on the server which recieves the request
  * 
  */
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class AuthRequest implements Serializable {
 	/**
 	 * 

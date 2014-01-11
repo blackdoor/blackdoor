@@ -5,13 +5,16 @@ package blackdoor.auth;
 
 import java.io.Serializable;
 import java.util.Arrays;
+
 import org.apache.commons.codec.binary.Hex;
+
 import blackdoor.util.Hash;
 
 /**
  * @author kAG0
  *
  */
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class User implements Serializable {
 	/**
 	 * 

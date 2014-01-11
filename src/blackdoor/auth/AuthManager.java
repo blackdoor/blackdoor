@@ -12,6 +12,7 @@ import blackdoor.auth.User.UserRight;
  * @author kAG0
  *
  */
+@Deprecated //See the Portunes project for more features and an SQL user database
 public class AuthManager {
 	private UserDB users;
 	/**
