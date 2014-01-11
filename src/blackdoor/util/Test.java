@@ -8,10 +8,11 @@ import java.util.Arrays;
 import javax.swing.text.PlainDocument;
 import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.io.FileUtils;
+//import org.apache.commons.io.FileUtils;
 
 import blackdoor.util.Crypto.EncryptionResult;
 import blackdoor.util.Crypto.InvalidKeyLengthException;
+import blackdoor.util.Watch.StopWatch;
 
 public class Test {
 
@@ -28,7 +29,13 @@ public class Test {
 		//System.out.println(c);
 		//EncryptionResult x = ExperimentalCrypto.getSHEBlock(, );
 		//arrayTest(b);
-		testStuff();
+		//testStuff();
+		byte[] a = new byte[1073741824];
+		byte[] b = new byte[1073741824];
+		StopWatch t = new StopWatch(true);
+		System.arraycopy(a, 0, b, 0, a.length);
+		System.out.println(t.checkNS());
+		
 	}
 	public static void arrayTest(byte[] arr){
 		for(int i = 0; i < arr.length; i++){
