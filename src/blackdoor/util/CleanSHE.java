@@ -70,10 +70,10 @@ public class CleanSHE {
 		}
 		
 		int numBlocks = (int) Math.floor(input.length/BLOCKSIZE);
-		System.out.println(numBlocks);
+		//System.out.println(numBlocks);
 		byte[] out = new byte[BLOCKSIZE * numBlocks];
 		for(int i = 0; i < numBlocks; i++){
-			System.out.println("i:"+i+" block:" + blockNo);
+			//System.out.println("i:"+i+" block:" + blockNo);
 			System.arraycopy(input, BLOCKSIZE*i, buffer, 0, BLOCKSIZE);
 			System.arraycopy(cryptBlock(), 0, out, i * BLOCKSIZE, BLOCKSIZE);//TODO do encryption on buffer
 			blockNo++;
@@ -87,7 +87,7 @@ public class CleanSHE {
 			System.arraycopy(input, numBlocks*BLOCKSIZE, buffer, 0, input.length - numBlocks*BLOCKSIZE);
 			bufferIndex = input.length - numBlocks*BLOCKSIZE;
 		}
-		System.out.println(Misc.bytesToHex(out));
+		//System.out.println(Misc.bytesToHex(out));
 		return out;
 	}
 	
@@ -98,7 +98,7 @@ public class CleanSHE {
 		if(bufferIndex != 0){
 			buffer[bufferIndex] = 0x69;
 			bufferIndex++;
-			System.out.println(Misc.bytesToHex(buffer));
+			//System.out.println(Misc.bytesToHex(buffer));
 			buffer = cryptBlock();
 			//add buffer to end of main
 			out = new byte[main.length + buffer.length];
@@ -114,26 +114,11 @@ public class CleanSHE {
 					break;
 				}
 			}
-			System.out.println("endindex " + endIndex);
+			//System.out.println("endindex " + endIndex);
 			out = new byte[endIndex + 1];
 			System.arraycopy(main, 0, out, 0, endIndex+1);
 		}
-		
-		
-		//determine where padding starts
-		
-//		
-//		
-//		
-//		if(endIndex+1 != buffer.length){
-//			out = new byte[main.length + endIndex+1];
-//			System.arraycopy(buffer, 0, out, main.length, endIndex + 1);
-//		}else{
-//			
-//		}
-//		
-//		System.arraycopy(main, 0, out, 0, main.length);
-		
+				
 		blockNo = 0;
 		IV = null;
 		key = null;
