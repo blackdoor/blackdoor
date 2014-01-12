@@ -30,13 +30,29 @@ public class Test {
 		//EncryptionResult x = ExperimentalCrypto.getSHEBlock(, );
 		//arrayTest(b);
 		//testStuff();
-		byte[] a = new byte[1073741824];
-		byte[] b = new byte[1073741824];
-		StopWatch t = new StopWatch(true);
-		System.arraycopy(a, 0, b, 0, a.length);
-		System.out.println(t.checkNS());
+		cryptoTest();
 		
 	}
+	
+	public static void cryptoTest(){
+		byte[] IV = new byte[32];
+		byte[] plainText = new byte[65];
+		byte[] key = new byte[32];
+		for(int i = 0; i < plainText.length; i++){
+			plainText[i] = (byte) ((i/32) +1);
+		}
+		
+		System.out.println("plaintext: " + Misc.bytesToHex(plainText));
+		CleanSHE cipher = new CleanSHE();
+		cipher.init(IV, key);
+		
+		byte[] cipherText = cipher.doFinal(plainText);
+		System.out.println("ciphertex: " + Misc.bytesToHex(cipherText));
+		cipher.init(IV, key);
+		byte[] decryptedText = cipher.doFinal(cipherText);
+		System.out.println("decrytext: " + Misc.bytesToHex(decryptedText));
+	}
+	
 	public static void arrayTest(byte[] arr){
 		for(int i = 0; i < arr.length; i++){
 			arr[i] = (byte) ~ arr[i];

@@ -48,6 +48,7 @@ public class CleanSHE {
 		this.IV = IV;
 		cfg = true;
 		blockNo = 0;
+		buffer = new byte[BLOCKSIZE];
 	}
 	
 	//returns the block in buffer encrypted
@@ -62,57 +63,76 @@ public class CleanSHE {
 	public byte[] update(byte[] input){
 		if(bufferIndex != 0){
 			byte[] in2 = Arrays.copyOf(buffer, input.length + bufferIndex);//new byte[input.length + bufferIndex];
+			//System.out.println(Misc.bytesToHex(in2));
 			//System.arraycopy(buffer, 0, in2, 0, bufferIndex);
 			System.arraycopy(input, 0, in2, bufferIndex, input.length);
 			input = in2;
 		}
 		
 		int numBlocks = (int) Math.floor(input.length/BLOCKSIZE);
+		System.out.println(numBlocks);
 		byte[] out = new byte[BLOCKSIZE * numBlocks];
-		for(int i = 0; i <= numBlocks; i++){
+		for(int i = 0; i < numBlocks; i++){
+			System.out.println("i:"+i+" block:" + blockNo);
 			System.arraycopy(input, BLOCKSIZE*i, buffer, 0, BLOCKSIZE);
 			System.arraycopy(cryptBlock(), 0, out, i * BLOCKSIZE, BLOCKSIZE);//TODO do encryption on buffer
 			blockNo++;
 		}
+		buffer = new byte[BLOCKSIZE];
 		if(input.length % BLOCKSIZE == 0){
-			buffer = new byte[BLOCKSIZE];
+			
 			bufferIndex = 0;
 		}else{
+			//buffer = new byte[BLOCKSIZE];
 			System.arraycopy(input, numBlocks*BLOCKSIZE, buffer, 0, input.length - numBlocks*BLOCKSIZE);
 			bufferIndex = input.length - numBlocks*BLOCKSIZE;
 		}
-		
+		System.out.println(Misc.bytesToHex(out));
 		return out;
 	}
 	
 	public byte[] doFinal(byte[] input){
 		byte[] main = update(input);
-		//if buffer isn't empty add a padding indicator to the end of data
-		if(bufferIndex != 0 || bufferIndex != BLOCKSIZE-1){
-			buffer[bufferIndex] = 69;
-			bufferIndex++;
-		}
-		buffer = cryptBlock();
-		//determine where padding starts
-		int endIndex = buffer.length-1 ;
-		while(buffer[endIndex] == 0){
-			endIndex --;
-			if(buffer[endIndex] == 69){
-				endIndex--;
-				break;
-			}
-		}
 		byte[] out;
-		
-		if(endIndex+1 != buffer.length){
-			out = new byte[main.length + endIndex+1];
-			System.arraycopy(buffer, 0, out, main.length, endIndex + 1);
-		}else{
+		//if buffer isn't empty add a padding indicator to the end of data
+		if(bufferIndex != 0){
+			buffer[bufferIndex] = 0x69;
+			bufferIndex++;
+			System.out.println(Misc.bytesToHex(buffer));
+			buffer = cryptBlock();
+			//add buffer to end of main
 			out = new byte[main.length + buffer.length];
+			System.arraycopy(main, 0, out, 0, main.length);
 			System.arraycopy(buffer, 0, out, main.length, buffer.length);
+		}else{
+			//remove padding
+			int endIndex = main.length-1 ;
+			while(main[endIndex] == 0){
+				endIndex --;
+				if(main[endIndex] == 0x69){
+					endIndex--;
+					break;
+				}
+			}
+			System.out.println("endindex " + endIndex);
+			out = new byte[endIndex + 1];
+			System.arraycopy(main, 0, out, 0, endIndex+1);
 		}
 		
-		System.arraycopy(main, 0, out, 0, main.length);
+		
+		//determine where padding starts
+		
+//		
+//		
+//		
+//		if(endIndex+1 != buffer.length){
+//			out = new byte[main.length + endIndex+1];
+//			System.arraycopy(buffer, 0, out, main.length, endIndex + 1);
+//		}else{
+//			
+//		}
+//		
+//		System.arraycopy(main, 0, out, 0, main.length);
 		
 		blockNo = 0;
 		IV = null;
