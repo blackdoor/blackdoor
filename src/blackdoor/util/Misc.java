@@ -145,10 +145,17 @@ public class Misc {
 	public static byte[] cleanXOR(byte[] a, byte[] b){
 		byte[] c = new byte[a.length];
 		int i=0;
-		for (byte d : a)
-		    c[i] = (byte) (d ^ b[i++]);
+		for (byte d : b)
+		    c[i] = (byte) (d ^ a[i++]);
 		return c;
 	}
+	
+	public static void arraycopy(byte[] source, int srcPos, byte[] dest, int destPos, int length){
+		for(int i = 0; i < length; i++){
+			dest[i + destPos] = source[i + srcPos];
+		}
+	}
+	
 	/**
 	 * @param a
 	 * @param b

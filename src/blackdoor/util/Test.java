@@ -36,21 +36,63 @@ public class Test {
 	
 	public static void cryptoTest(){
 		byte[] IV = new byte[32];
-		byte[] plainText = new byte[65];
+		byte[] bigIV = new byte[64];
+		byte[] plainText = new byte[100000000];
+		//byte[] plainText2 = new byte[100000000];
 		byte[] key = new byte[32];
 		for(int i = 0; i < plainText.length; i++){
 			plainText[i] = (byte) ((i/32) +1);
 		}
-		
-		System.out.println("plaintext: " + Misc.bytesToHex(plainText));
+		long total=0;
+		double average;
+		StopWatch time = new StopWatch(false);
 		CleanSHE cipher = new CleanSHE();
-		cipher.init(IV, key);
+		byte[] cipherText;
+		//byte[] decryptedText;
 		
-		byte[] cipherText = cipher.doFinal(plainText);
-		System.out.println("ciphertex: " + Misc.bytesToHex(cipherText));
-		cipher.init(IV, key);
-		byte[] decryptedText = cipher.doFinal(cipherText);
-		System.out.println("decrytext: " + Misc.bytesToHex(decryptedText));
+		//cipher.init(IV, key);
+		//cipherText = cipher.doFinal(plainText);
+		//cipher.init(IV, key);
+		//cipherText = cipher.doFinal(plainText);
+		
+		for(int i = 0; i < 2; i++){
+			System.out.println("Start");
+			time.mark();
+			//Misc.cleanXOR(IV, key);
+			//System.arraycopy(IV, 0, bigIV, 32, IV.length);
+			cipher.init(IV, key);
+			cipherText = cipher.doFinal(plainText);
+			//SHE.doSHE(plainText, key, IV);
+			//cipher.init(IV, key);
+			//decryptedText = cipher.doFinal(cipherText);
+			total+=time.checkNS();
+			
+		}
+		System.out.println(total);
+		average = total/2;
+		System.out.println("Normal: " + average);
+		System.out.println(100/(average/1000000000) + "MB/s");
+//		for(int i = 0; i < 3; i++){
+//			time.mark();
+//			cipher.init(IV, key);
+//			cipherText = cipher.doFinalWithInterrupts(plainText);
+//			//cipher.init(IV, key);
+//			//decryptedText = cipher.doFinalWithInterrupts(cipherText);
+//			total+=time.checkNS();
+//		}
+//		System.out.println(total);
+//		average = total/3;
+//		System.out.println("interrupt: " + average);
+		
+		//System.out.println("plaintext: " + Misc.bytesToHex(plainText));
+		
+		
+		
+		
+		//System.out.println("ciphertex: " + Misc.bytesToHex(cipherText));
+		//cipher.init(IV, key);
+		//byte[] decryptedText = cipher.doFinal(cipherText);
+		//System.out.println("decrytext: " + Misc.bytesToHex(decryptedText));
 	}
 	
 	public static void arrayTest(byte[] arr){
@@ -59,36 +101,5 @@ public class Test {
 		}
 	}
 	
-	public static void testStuff() throws IOException{
-	int mb = 1024*1024;
-	Runtime runtime = Runtime.getRuntime();
-	byte iv[];
-	iv =new byte[32];
-	byte key[] = new byte[32];
-	new SecureRandom().nextBytes(iv);
-	new SecureRandom().nextBytes(key);
-	byte[] plaintext;
-	//plaintext = "BGIKWRG669CCE1KIE6JBX8U4DSVRHHDS3JIHOL4667khhjhjDBFEQ14GVOENKTJLHJ9YCBVD2N44KH8MOKTCMI7BP6QH3W4NOKU6FUSE1R033EN4SFWRU94B7NX59SUDVIKF2Q6NIKL9M7F2OSELU41HBWJOA6V8D4OSSCY97H13ATZVFBJ64AD6AFYZ7PQ0IYMSQHOPRR8L4TI0303M0PJQY4NX32DUPKF0AZEI8ISGPAZKHD0ZAB5F1P6J679M890R75LN520Z8KA6ISM3037GDPQPOQHA4R6CFORZJ8N8QIAPFJ71IC7SW0H4TINDTA68PRGVUQC198VRESC2ZHROLJ23FVVGMJGPQMGZGY8OJSYLW01W5GW4MV0RXSVVSQEIBPWXLNYDUJKWB74LH4".getBytes();
-	plaintext = FileUtils.readFileToByteArray(new File("C:/Users/kAG0/Pictures/Photography/Florence Summer 2013/_DSC8401_stitch.psd"));
-	//plaintext[plaintext.length-1] = 0x0;
-	//plaintext[plaintext.length-2] = 0x0;
-	System.out.println("Plaintext length " + plaintext.length + "\n" + DatatypeConverter.printHexBinary(Arrays.copyOfRange(plaintext, plaintext.length - 256, plaintext.length)));
-	
-	System.out.println("file loaded into memory.");
-	Misc.PrintMemInfo(runtime);
-	
-	EncryptionResult out = ExperimentalCrypto.doSHE(plaintext, key, iv);
-	//System.out.println(DatatypeConverter.printHexBinary(plaintext));
-	plaintext = null;
-	//System.gc();
-	System.out.println("encryption done.");
-	Misc.PrintMemInfo(runtime);
-	
-	System.out.println(DatatypeConverter.printHexBinary(Arrays.copyOfRange(out.getOutput(), out.getOutput().length - 256, out.getOutput().length)));
-	out = ExperimentalCrypto.doSHE(out.getOutput(), key, out.getIv());
-	System.out.println("decryption done.");
-	Misc.PrintMemInfo(runtime);
-	
-	System.out.println(DatatypeConverter.printHexBinary(Arrays.copyOfRange(out.getOutput(), out.getOutput().length - 256, out.getOutput().length)));
-	}
+
 }

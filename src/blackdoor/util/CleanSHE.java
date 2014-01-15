@@ -52,15 +52,60 @@ public class CleanSHE {
 	}
 	
 	//returns the block in buffer encrypted
+//	private byte[] cryptBlock(){
+//		byte[] iv = new byte[BLOCKSIZE *2];//Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
+//		System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
+//		iv[blockNo % BLOCKSIZE] += blockNo + 1;
+//		//iv = Misc.cleanXOR(key, iv);
+//		//iv = Arrays.copyOf(iv, BLOCKSIZE + iv.length);
+//		System.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
+//		return Misc.cleanXOR(buffer, mD.digest(iv));
+//	}
 	private byte[] cryptBlock(){
-		byte[] iv = Arrays.copyOf(IV, IV.length);
+		byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
+		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
 		iv[blockNo % BLOCKSIZE] += blockNo + 1;
-		iv = Arrays.copyOf(iv, BLOCKSIZE + iv.length);
-		System.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
+		iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
+		//Misc.XORintoA(iv, key);
+		//iv = Arrays.copyOf(iv, BLOCKSIZE + iv.length);
+		//Misc.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
+		//System.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
 		return Misc.cleanXOR(buffer, mD.digest(iv));
 	}
 	
+	public byte[] updateWithInterrupts(byte[] input){
+		if(!cfg){
+			throw new RuntimeException("Cipher not configured.");
+		}
+		int numBlocks = (int) Math.floor((input.length + bufferIndex)/BLOCKSIZE);
+		byte[] out = new byte[numBlocks*BLOCKSIZE];
+		
+		for(int i=0; i < input.length; i++){
+			try{
+				buffer[bufferIndex++] = input[i];
+			}catch(IndexOutOfBoundsException e){
+				bufferIndex = 0;
+				i--;
+				//System.out.println(Misc.bytesToHex(buffer));
+				System.arraycopy(cryptBlock(), 0, out, blockNo*BLOCKSIZE, BLOCKSIZE);
+				blockNo++;
+				buffer = new byte[BLOCKSIZE];
+			}
+		}
+		if(bufferIndex == 32){
+			bufferIndex = 0;
+			System.arraycopy(cryptBlock(), 0, out, blockNo*BLOCKSIZE, BLOCKSIZE);
+			buffer = new byte[BLOCKSIZE];
+		}
+		//System.out.println(bufferIndex);
+		//System.out.println(Misc.bytesToHex(out));
+		return out;
+	}
+	
 	public byte[] update(byte[] input){
+		if(!cfg){
+			throw new RuntimeException("Cipher not configured.");//TODO
+		}
 		if(bufferIndex != 0){
 			byte[] in2 = Arrays.copyOf(buffer, input.length + bufferIndex);//new byte[input.length + bufferIndex];
 			//System.out.println(Misc.bytesToHex(in2));
@@ -90,12 +135,12 @@ public class CleanSHE {
 		//System.out.println(Misc.bytesToHex(out));
 		return out;
 	}
-	
-	public byte[] doFinal(byte[] input){
-		byte[] main = update(input);
+	public byte[] doFinalWithInterrupts(byte[] input){
+		byte[] main = updateWithInterrupts(input);
 		byte[] out;
 		//if buffer isn't empty add a padding indicator to the end of data
 		if(bufferIndex != 0){
+			
 			buffer[bufferIndex] = 0x69;
 			bufferIndex++;
 			//System.out.println(Misc.bytesToHex(buffer));
@@ -107,7 +152,44 @@ public class CleanSHE {
 		}else{
 			//remove padding
 			int endIndex = main.length-1 ;
-			while(main[endIndex] == 0){
+			while(main[endIndex] == 0 || main[endIndex] == 0x69){
+				endIndex --;
+				if(main[endIndex] == 0x69){
+					endIndex--;
+					break;
+				}
+			}
+			//System.out.println("endindex " + endIndex);
+			out = new byte[endIndex + 1];
+			System.arraycopy(main, 0, out, 0, endIndex+1);
+		}
+				
+		blockNo = 0;
+		IV = null;
+		key = null;
+		cfg = false;
+		bufferIndex = 0;
+		
+		return out;
+	}
+	public byte[] doFinal(byte[] input){
+		byte[] main = update(input);
+		byte[] out;
+		//if buffer isn't empty add a padding indicator to the end of data
+		if(bufferIndex != 0){
+			
+			buffer[bufferIndex] = 0x69;
+			bufferIndex++;
+			//System.out.println(Misc.bytesToHex(buffer));
+			buffer = cryptBlock();
+			//add buffer to end of main
+			out = new byte[main.length + buffer.length];
+			System.arraycopy(main, 0, out, 0, main.length);
+			System.arraycopy(buffer, 0, out, main.length, buffer.length);
+		}else{
+			//remove padding
+			int endIndex = main.length-1 ;
+			while(main[endIndex] == 0 || main[endIndex] == 0x69){
 				endIndex --;
 				if(main[endIndex] == 0x69){
 					endIndex--;
