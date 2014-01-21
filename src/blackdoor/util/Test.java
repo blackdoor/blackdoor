@@ -52,7 +52,7 @@ public class Test {
 		long total=0;
 		double average;
 		StopWatch time = new StopWatch(false);
-		CleanSHE cipher = new CleanSHE();
+		SHE cipher = new SHE();
 		byte[] cipherText;
 		byte[] cipherTemp;
 		byte[] cipherTemp2;
