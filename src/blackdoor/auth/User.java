@@ -6,7 +6,7 @@ package blackdoor.auth;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.apache.commons.codec.binary.Hex;
+//import org.apache.commons.codec.binary.Hex;
 
 import blackdoor.util.Hash;
 
@@ -161,7 +161,7 @@ public class User implements Serializable {
 	 * @return returns true if passwordHash is the same as the stored password hash
 	 */
 	@Deprecated public boolean checkPassword(String passwordHash){
-		String password = Hex.encodeHexString(this.passwordHash);
+		String password = "";// = Hex.encodeHexString(this.passwordHash);
 		return password.equalsIgnoreCase(passwordHash);
 	}
 

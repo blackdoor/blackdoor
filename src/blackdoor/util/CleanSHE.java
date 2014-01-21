@@ -65,11 +65,11 @@ public class CleanSHE {
 		byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
 		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
 		iv[blockNo % BLOCKSIZE] += blockNo + 1;
-		iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
+		//iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
 		//Misc.XORintoA(iv, key);
-		//iv = Arrays.copyOf(iv, BLOCKSIZE + iv.length);
+		iv = Arrays.copyOf(iv, BLOCKSIZE + iv.length);
 		//Misc.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
-		//System.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
+		System.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
 		return Misc.cleanXOR(buffer, mD.digest(iv));
 	}
 	

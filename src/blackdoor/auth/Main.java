@@ -2,7 +2,7 @@ package blackdoor.auth;
 
 import java.io.IOException;
 
-import org.apache.commons.codec.binary.Hex;
+//import org.apache.commons.codec.binary.Hex;
 
 import blackdoor.auth.User.UserRight;
 @Deprecated //See the Portunes project for more features and an SQL user database

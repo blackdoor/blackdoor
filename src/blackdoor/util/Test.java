@@ -37,41 +37,56 @@ public class Test {
 	public static void cryptoTest(){
 		byte[] IV = new byte[32];
 		byte[] bigIV = new byte[64];
-		byte[] plainText = new byte[100000000];
+		byte[] plainText = new byte[1000];
 		//byte[] plainText2 = new byte[100000000];
 		byte[] key = new byte[32];
 		for(int i = 0; i < plainText.length; i++){
 			plainText[i] = (byte) ((i/32) +1);
 		}
+		
+		
+		
+		
+		
+		
 		long total=0;
 		double average;
 		StopWatch time = new StopWatch(false);
 		CleanSHE cipher = new CleanSHE();
 		byte[] cipherText;
-		//byte[] decryptedText;
+		byte[] cipherTemp;
+		byte[] cipherTemp2;
+		cipher.init(IV, key);
+		System.out.println("T1");
+		cipherTemp = cipher.update(Arrays.copyOfRange(plainText, 0, 72));
+		System.out.println("T2");
+		cipherTemp2 = cipher.doFinal(Arrays.copyOfRange(plainText, 72, plainText.length));
+		cipherText = new byte[cipherTemp.length + cipherTemp2.length];
+		System.arraycopy(cipherTemp, 0, cipherText, 0, cipherTemp.length);
+		System.arraycopy(cipherTemp2, 0, cipherText, cipherTemp.length,	cipherTemp2.length);
+		System.out.println(Misc.bytesToHex(cipherText));
+		cipher.init(IV, key);
+		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
 		
-		//cipher.init(IV, key);
-		//cipherText = cipher.doFinal(plainText);
-		//cipher.init(IV, key);
-		//cipherText = cipher.doFinal(plainText);
 		
-		for(int i = 0; i < 2; i++){
-			System.out.println("Start");
-			time.mark();
-			//Misc.cleanXOR(IV, key);
-			//System.arraycopy(IV, 0, bigIV, 32, IV.length);
-			cipher.init(IV, key);
-			cipherText = cipher.doFinal(plainText);
-			//SHE.doSHE(plainText, key, IV);
-			//cipher.init(IV, key);
-			//decryptedText = cipher.doFinal(cipherText);
-			total+=time.checkNS();
-			
-		}
-		System.out.println(total);
-		average = total/2;
-		System.out.println("Normal: " + average);
-		System.out.println(100/(average/1000000000) + "MB/s");
+
+//		for(int i = 0; i < 2; i++){
+//			System.out.println("Start");
+//			time.mark();
+//			//Misc.cleanXOR(IV, key);
+//			//System.arraycopy(IV, 0, bigIV, 32, IV.length);
+//			cipher.init(IV, key);
+//			cipherText = cipher.doFinal(plainText);
+//			//SHE.doSHE(plainText, key, IV);
+//			//cipher.init(IV, key);
+//			//decryptedText = cipher.doFinal(cipherText);
+//			total+=time.checkNS();
+//			
+//		}
+//		System.out.println(total);
+//		average = total/2;
+//		System.out.println("Normal: " + average);
+//		System.out.println(100/(average/1000000000) + "MB/s");
 //		for(int i = 0; i < 3; i++){
 //			time.mark();
 //			cipher.init(IV, key);
