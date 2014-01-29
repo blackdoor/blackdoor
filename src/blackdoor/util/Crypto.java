@@ -270,12 +270,11 @@ public class Crypto {
 		
 		public EncryptionResult(byte[] simpleSerial){
 			int ivLength = simpleSerial[0];
-			int outputLength = simpleSerial.length - ivLength - 1;
+			int outputLength = simpleSerial.length - ivLength;
 			iv = new byte[ivLength];
 			output = new byte[outputLength];
 			System.arraycopy(simpleSerial, 1, iv, 0, ivLength);
-			System.arraycopy(simpleSerial, ivLength + 1, output, 0, outputLength);
-			salt = null;
+			System.arraycopy(simpleSerial, ivLength, output, 0, outputLength);
 		}
 		
 		/**
@@ -283,7 +282,7 @@ public class Crypto {
 		 * @return the encryption result as a byte array in the form (ivLength|iv|ciphertext) 
 		 */
 		public byte[] simpleSerial(){
-			byte[] out = new byte[output.length + iv.length + 1];
+			byte[] out = new byte[output.length + iv.length];
 			out[0] = (byte) iv.length;
 			System.arraycopy(iv, 0, out, 1, iv.length);
 			System.arraycopy(output, 0, out, iv.length, output.length);

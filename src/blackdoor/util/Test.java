@@ -56,7 +56,7 @@ public class Test {
 		byte[] cipherText;
 		byte[] cipherTemp;
 		byte[] cipherTemp2;
-		cipher.init(IV, key);
+		IV = cipher.init(key);
 		System.out.println("T1");
 		cipherTemp = cipher.update(Arrays.copyOfRange(plainText, 0, 72));
 		System.out.println("T2");
@@ -65,9 +65,17 @@ public class Test {
 		System.arraycopy(cipherTemp, 0, cipherText, 0, cipherTemp.length);
 		System.arraycopy(cipherTemp2, 0, cipherText, cipherTemp.length,	cipherTemp2.length);
 		System.out.println(Misc.bytesToHex(cipherText));
-		cipher.init(IV, key);
-		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
+		SHE.EncryptionResult cipherResult = new SHE.EncryptionResult(cipherText, IV);
+		System.out.println(Misc.bytesToHex(cipherResult.simpleSerial()));
+		System.out.println(cipherResult);
+		//cipher.init(IV, key);
+		//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
+		SHE.EncryptionResult cipherResult2 = new SHE.EncryptionResult(cipherResult.simpleSerial());
+		System.out.println(cipherResult2);
+		System.out.println(Misc.bytesToHex(cipherResult2.getText()));
+		cipher.init(cipherResult2.getIv(), key);
 		
+		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherResult2.getText())));
 		
 
 //		for(int i = 0; i < 2; i++){

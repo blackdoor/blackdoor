@@ -157,6 +157,15 @@ public class Misc {
 	}
 	
 	/**
+	 * clear the terminal screen by overwriting it with 100 blank lines.
+	 */
+	public static void cls(){
+		for(int i = 0; i < 100; i++){
+			System.out.println();
+		}
+	}
+	
+	/**
 	 * @param a
 	 * @param b
 	 * @param c
