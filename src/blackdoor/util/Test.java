@@ -17,9 +17,12 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
-import blackdoor.util.Crypto.EncryptionResult;
-import blackdoor.util.Crypto.InvalidKeyLengthException;
+import blackdoor.crypto.Hash;
+import blackdoor.crypto.SHE;
+import blackdoor.crypto.Crypto.EncryptionResult;
+import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.util.Watch.StopWatch;
 
 public class Test {

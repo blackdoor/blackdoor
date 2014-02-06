@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
 import blackdoor.auth.AuthRequest.CSHI;
 import blackdoor.auth.AuthRequest.Operation;
 import blackdoor.auth.User.UserRight;
-import blackdoor.util.Hash;
+import blackdoor.crypto.Hash;
 
 /**
  * @author kAG0

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package blackdoor.util;
+package blackdoor.crypto;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;

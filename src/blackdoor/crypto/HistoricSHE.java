@@ -1,14 +1,15 @@
 /**
  * 
  */
-package blackdoor.util;
+package blackdoor.crypto;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
-import blackdoor.util.Crypto.EncryptionResult;
+import blackdoor.crypto.Crypto.EncryptionResult;
+import blackdoor.util.Misc;
 
 import javax.xml.bind.DatatypeConverter;
 

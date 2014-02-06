@@ -1,4 +1,4 @@
-package blackdoor.util;
+package blackdoor.struct;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package blackdoor.util;
+package blackdoor.crypto;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -9,7 +9,8 @@ import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
-import blackdoor.util.Crypto.EncryptionResult;
+import blackdoor.crypto.Crypto.EncryptionResult;
+import blackdoor.util.Misc;
 
 /**
  * @author kAG0

@@ -1,6 +1,8 @@
-package blackdoor.util;
+package blackdoor.struct;
 
 import java.util.ArrayList;
+
+//import blackdoor.util.Verbose;
 
 /**
  * An object that maps String keys to multiple different generic values. A value
@@ -11,7 +13,7 @@ import java.util.ArrayList;
  * 
  */
 public class GenericMap {
-	private Verbose verbose;
+	//private Verbose verbose;
 	private ArrayList<GenericEntry> values;
 	private SortedArrayList<String> keys;
 	public int size;
@@ -22,7 +24,7 @@ public class GenericMap {
 		keys = new SortedArrayList<String>();
 		size = 0;
 		isEmpty = true;
-		verbose = new Verbose(true, true);
+		//verbose = new Verbose(true, true);
 	}
 
 	/**
@@ -161,30 +163,30 @@ public class GenericMap {
 		if (this == obj)
 			return true;
 		if (obj == null) {
-			verbose.println("comparing object null");
+			//verbose.println("comparing object null");
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
-			verbose.println("not same class");
+			//verbose.println("not same class");
 			return false;
 		}
 		GenericMap other = (GenericMap) obj;
 		if (other.size != size) {
-			verbose.println("different sizes");
+			//verbose.println("different sizes");
 			return false;
 		}
 		if (keys == null) {
 			if (other.keys != null) {
-				verbose.println("null difference in keys");
+				//verbose.println("null difference in keys");
 				return false;
 			}
 		} else if (!keys.equals(other.keys)) {
-			verbose.println("keys unequal");
+			//verbose.println("keys unequal");
 			return false;
 		}
 		if (values == null) {
 			if (other.values != null) {
-				verbose.println("null difference in values");
+			//	verbose.println("null difference in values");
 				return false;
 			}
 		} else {
@@ -192,8 +194,8 @@ public class GenericMap {
 			for (String key : keys) {
 				Class type = values.get(index).value.getClass();
 				if (!get(key, type).equals(other.get(key, type))) {
-					verbose.println(get(key, type) + " not equal to "
-							+ other.get(key, type));
+					//verbose.println(get(key, type) + " not equal to "
+					//		+ other.get(key, type));
 					return false;
 				}
 				index++;

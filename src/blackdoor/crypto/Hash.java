@@ -2,7 +2,7 @@
  *	the cleanness of my commit history was sacrificed in a great battle 
  *	of merge conflicts so that this class could live
  */
-package blackdoor.util;
+package blackdoor.crypto;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -13,6 +13,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
+
+import blackdoor.util.Misc;
 
 /**
  * @author kAG0
