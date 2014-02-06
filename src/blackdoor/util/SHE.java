@@ -120,7 +120,7 @@ public class SHE {
 			throw new RuntimeException("Cipher not configured.");//TODO
 		}
 		if(input.length == 0)
-			return null;
+			return new byte[]{};//null;
 		if(bufferIndex != 0){
 			byte[] in2 = Arrays.copyOf(buffer, input.length + bufferIndex);//new byte[input.length + bufferIndex];
 			//System.out.println(Misc.bytesToHex(in2));
