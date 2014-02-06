@@ -29,7 +29,7 @@ public class SHE {
 	/**
 	 * Creates a Cipher object.
 	 */
-	SHE(){
+	public SHE(){
 		blockNo = 0;
 		cfg = false;
 		try {
@@ -187,6 +187,17 @@ public class SHE {
 //		
 //		return out;
 //	}
+	/**
+	 * Encrypts or decrypts data in a single-part operation, or finishes a multiple-part operation.
+	 * The bytes in the input buffer, and any input bytes that may have been buffered during a previous update operation, are processed, with padding (if requested) being applied. 
+	 *
+	 * Upon finishing, this method resets this cipher object to the state it was in before initialized via a call to init. That is, the object is reset and needs to be re-initialized before it is available to encrypt or decrypt more data.
+	 * @param input the input buffer
+	 * @return the new buffer with the result
+	 */
+	public byte[] doFinal(){
+		return doFinal(new byte[]{});
+	}
 	
 	/**
 	 * Encrypts or decrypts data in a single-part operation, or finishes a multiple-part operation.
@@ -245,7 +256,7 @@ public class SHE {
 		 * @param text
 		 * @param iv
 		 */
-		public EncryptionResult(byte[] text, byte[] iv) {
+		public EncryptionResult(byte[] iv, byte[] text) {
 			//super();
 			this.text = text;
 			this.iv = iv;
@@ -288,8 +299,8 @@ public class SHE {
 		
 		@Override
 		public String toString() {
-			return "EncryptionResult [text=" + Misc.bytesToHex(text) + ", iv="
-					+ Misc.bytesToHex(iv) + "]";
+			return "EncryptionResult [iv="
+					+ Misc.bytesToHex(iv) + "[text=" + Misc.bytesToHex(text)+ "]\n" + Misc.bytesToHex(simpleSerial());
 		}
 	}
 

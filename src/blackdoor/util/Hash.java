@@ -4,8 +4,14 @@
  */
 package blackdoor.util;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -18,6 +24,34 @@ public class Hash {
 	//public static int[] shuffle3 = new int[]{72,  16, 200,  54, 219,   2, 188,  40, 220,  32, 222,  63,   5,  21,  34, 151, 144,  76, 121, 177, 129, 165,  84, 139,  35,  70, 238, 145, 236, 158, 207, 122,   4, 195, 197,  88, 111, 103,  10, 229, 221, 251, 107,  90,  98,   9, 102, 162, 178, 101, 223, 114, 225,  39, 194, 204, 140,  93, 124,  75, 125,  67, 210,  81, 199,  36,  99,  89,  14, 142,  29, 246,   7, 226,  58,  12,  37, 150, 156, 161,  38, 183, 253, 143, 172, 175, 209,  77, 113, 132, 152,   1, 216,  30,  71, 106, 243, 127, 241,  65, 135,  66,  73,  68, 148, 196,  45,  78,  55, 191, 252, 192, 163, 149, 160, 254,  52, 242, 215,  46,  28,  92, 153,  27, 131, 247, 157,  82,  15, 179,  61,   6, 227, 112, 159, 118, 117,  59,  33, 176,  80,  19, 205, 166, 198, 206, 217,  56,  49, 184, 141, 237, 186,  87,  48, 240, 193,  53, 211, 202, 147, 167,  95,  57, 169, 168, 233, 137,  13,  23, 126,  31, 230, 232, 245, 128, 231, 189, 123, 171, 154,  24, 180,   8, 255, 174,  42, 249, 235, 190, 187, 173,  83, 185,  64,  17,  74,  79, 212,  86, 134, 248,  18, 146,  50, 136,  62, 108, 133, 104, 119,  20, 228,  94, 138,  51, 224,  96, 250, 155,   0, 109,  85, 130, 105,   3,  44, 213,  22, 182, 218, 110,  69, 115, 201,  11,  47, 181, 164,  43,  26, 100, 239,  60, 244, 120, 214,  97, 170, 116,  91, 208,  25, 203,  41, 234};
 	private byte[] input = null;
 	private MessageDigest mD;
+	
+	/**
+	 * 
+	 * @param file
+	 * @return the SHA256 hash of file
+	 * @throws IOException 
+	 */
+	public static byte[] getFileHash(File file) throws IOException{
+		FileInputStream fis = new FileInputStream(file);
+		BufferedInputStream inStream = new BufferedInputStream(fis);
+		byte[] buffer = new byte[32];
+		MessageDigest mD = null;
+		try {
+			mD = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int k;
+		while((k = inStream.read(buffer)) != -1){
+			//inStream.read(buffer);
+			mD.update(Arrays.copyOf(buffer, k));
+		}
+		inStream.close();
+		return mD.digest();
+		
+		//return Hash.getSHA256(Files.readAllBytes(file.toPath()));
+	}
 
 	public Hash(){
 	}
