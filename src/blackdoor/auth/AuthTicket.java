@@ -32,7 +32,13 @@ public class AuthTicket implements Serializable{
 	
 	private static final int serialSize = 4 + 8 + 4;
 	
-	
+	/**
+	 * Create a new AuthTicket with the issue time set to the current time.
+	 * @param userName
+	 * @param duration The validity period for this ticket in minutes.
+	 * @param userIP
+	 * @param serviceID
+	 */
 	public AuthTicket(String userName, long duration,
 			InetAddress userIP, byte serviceID) {
 		super();
@@ -42,7 +48,14 @@ public class AuthTicket implements Serializable{
 		this.userIP = userIP;
 		this.serviceID = serviceID;
 	}
-
+	/**
+	 * Create a new AuthTicket.
+	 * @param userName
+	 * @param issueTime The time this ticket was issued. The ticket will expire duration minutes from issueTime. CAUTION:: tickets opened in different time zones than they were created in will show the different time zone but not compensate for the offset!!
+	 * @param duration The validity period for this ticket in minutes.
+	 * @param userIP
+	 * @param serviceID
+	 */
 	public AuthTicket(String userName, Watch issueTime, long duration,
 			InetAddress userIP, byte serviceID) {
 		super();
@@ -53,6 +66,11 @@ public class AuthTicket implements Serializable{
 		this.serviceID = serviceID;
 	}
 	
+	/**
+	 * Open an AuthTicket using the given key
+	 * @param key
+	 * @param ticket
+	 */
 	public AuthTicket(byte[] key, byte[] ticket){
 		//byte b = -1;
 		ticket = decrypt(key, ticket);

@@ -1,16 +1,10 @@
 package blackdoor.util;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -23,10 +17,10 @@ public class Misc {
 	 * @return
 	 */
 	public static byte[] getNumberInBytes(Integer num){
-		byte[] result = new byte[num.SIZE/8];
+		byte[] result = new byte[Integer.SIZE/8];
 		int x;
 		for(int i = 0; i < result.length; i++){
-			x = (num.SIZE - (8 + 8*i));
+			x = (Integer.SIZE - (8 + 8*i));
 			//System.out.println(x);
 			result[i] = (byte) (num.intValue() >> x);
 		}
@@ -39,9 +33,9 @@ public class Misc {
 	 * @return
 	 */
 	public static byte[] getNumberInBytes(Long num){
-		byte[] result = new byte[num.SIZE/8];
+		byte[] result = new byte[Long.SIZE/8];
 		for(int i = 0; i < result.length; i++){
-			result[i] = (byte) (num.longValue() >> (num.SIZE - (8 + 8*i)));
+			result[i] = (byte) (num.longValue() >> (Long.SIZE - (8 + 8*i)));
 		}
 		return result;
 	}
