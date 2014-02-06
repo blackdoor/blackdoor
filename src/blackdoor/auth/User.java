@@ -8,7 +8,8 @@ import java.util.Arrays;
 
 //import org.apache.commons.codec.binary.Hex;
 
-import blackdoor.util.Hash;
+
+import blackdoor.crypto.Hash;
 
 /**
  * @author kAG0

@@ -1,13 +1,15 @@
 /**
  * 
  */
-package blackdoor.util;
+package blackdoor.crypto;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+
+import blackdoor.util.Misc;
 
 /**
  * @author nfischer3

@@ -20,7 +20,7 @@ import java.util.Scanner;
 import java.util.UUID;
 
 import blackdoor.auth.AuthRequest.Operation;
-import blackdoor.util.Hash;
+import blackdoor.crypto.Hash;
 
 /**
  * @author kAG0

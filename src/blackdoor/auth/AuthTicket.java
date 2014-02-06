@@ -10,8 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import blackdoor.crypto.SHE;
 import blackdoor.util.Misc;
-import blackdoor.util.SHE;
 import blackdoor.util.Watch;
 
 /**
@@ -30,7 +30,7 @@ public class AuthTicket implements Serializable{
 	private byte serviceID;
 	private InetAddress userIP;
 	
-	private static final int serialSize = 4 + 8 + 4;
+	public static final int serialSize = 4 + 8 + 4;
 	
 	/**
 	 * Create a new AuthTicket with the issue time set to the current time.
