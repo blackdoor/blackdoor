@@ -1,6 +1,9 @@
 package blackdoor.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,6 +15,9 @@ import javax.swing.text.PlainDocument;
 import javax.xml.bind.DatatypeConverter;
 
 //import org.apache.commons.io.FileUtils;
+
+
+
 
 
 
@@ -42,11 +48,57 @@ public class Test {
 		//arrayTest(b);
 		//testStuff();
 		//System.out.println(InetAddress.getLocalHost().getAddress().length);
-		fileHashTest();
+		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
+		cryptoStreamTest();
 		
 	}
+	
+	public static void cryptoStreamTest(){
+		File outFile = new File("out.txt");
+		FileOutputStream fos = null;
+		SHE.EncryptedOutputStream eos = null;
+		SHE cipher = new SHE();
+		byte[] IV = new byte[32];
+		byte[] plainText = new byte[1000];
+		byte[] key = new byte[32];
+		for(int i = 0; i < plainText.length; i++){
+			plainText[i] = (byte) ((i/32) +1);
+		}
+		System.out.println(Misc.bytesToHex(plainText));
+		cipher.init(IV, key);
+		try {
+			fos = new FileOutputStream(outFile);
+			eos = new SHE.EncryptedOutputStream(fos, cipher);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		byte[] debug =null;
+		try {
+			//debug= cipher.update(plainText);
+			//System.out.println(Misc.bytesToHex(debug));
+			//fos.write(debug);
+			eos.write(plainText, 0 ,40);
+			//eos.write(plainText, 20, plainText.length-20);
+			eos.close();
+			System.out.println();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		cipher.init(IV, key);
+		try {
+			byte[] readFile = Files.readAllBytes(outFile.toPath());
+			System.out.println(Misc.bytesToHex(cipher.doFinal(readFile)));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void fileHashTest(){
 		try {
 			File file = new File("D:/Users/nfischer3/Videos/Escape Plan 2013 HDTV AC3 XViD - OLDTiMERS.avi");
