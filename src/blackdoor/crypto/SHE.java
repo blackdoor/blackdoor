@@ -9,12 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+import blackdoor.struct.ByteQueue;
 import blackdoor.util.Misc;
 
 /**
@@ -301,7 +303,7 @@ public class SHE {
 			super(out);
 			if(!cipher.isConfigured())
 				throw new RuntimeException("Cipher not configured.");
-			padOnClose = true;
+			padOnClose = false;
 			this.cipher = cipher;
 		}
 		/**
@@ -351,43 +353,46 @@ public class SHE {
 	
 	public static class EncryptedInputStream extends FilterInputStream{
 		private SHE cipher;
-		private ByteBuffer buffer;
+		private ByteQueue buffer;
 		
 		public EncryptedInputStream(InputStream in, SHE cipher) {
 			super(in);
 			if(!cipher.isConfigured())
 				throw new RuntimeException("Cipher not configured.");
 			this.cipher = cipher;
-			buffer = ByteBuffer.allocate(cipher.blockSize*2);
+			buffer = new ByteQueue(cipher.blockSize*2);
+			buffer.setResizable(true);
 		}
 		
 		private void bufferBlock() throws IOException{
 			byte[] plainText = new byte[cipher.blockSize];
 			in.read(plainText);
-			buffer.put(cipher.update(plainText));
+			buffer.enQueue(cipher.update(plainText));
+		}
+		
+		private void bufferBytes(int size) throws IOException{
+			while(buffer.filled() < size){
+				bufferBlock();
+				}
 		}
 		
 		public int read() throws IOException{
-			if(buffer.hasRemaining())
-				return buffer.get();
-			else{
+			try{
+				return buffer.deQueue(1)[0];
+			}catch(BufferUnderflowException e){
 				bufferBlock();
-				return buffer.get();
+				return read();
 			}
 		}
 		
 		public int read(byte[] b) throws IOException{
-			
+			return read(b, 0, b.length);
 		}
 		
 		public int read(byte[]b, int off, int len) throws IOException{
-			byte[] ret = new byte[len-off];
-			if(in.read(ret, off, len) == -1)
-				return -1;
-			ret = cipher.update(ret);
-			if(ret.length > len-off){
-				
-			}
+			bufferBytes(len-off);
+			buffer.deQueue(b, off, len);
+			return len-off;
 		}
 		
 	}
