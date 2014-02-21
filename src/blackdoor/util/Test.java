@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -24,11 +25,14 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.Hash;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
+import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
 
 public class Test {
@@ -51,8 +55,47 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-		cryptoStreamTest();
-		
+		//cryptoStreamTest();
+		//bufferTest();
+		qTest();
+	}
+	public static void qTest(){
+		ByteQueue.main();
+	}
+	public static void bufferTest(){
+		byte[] plainText = new byte[]{0,1,2,3,4,5};//new byte[100];
+		ByteBuffer b = ByteBuffer.allocate(20);
+		//for(int i = 0; i < plainText.length; i++){
+		//	plainText[i] = (byte) ((i/32) +1);
+		//}
+		System.out.println("new "+Misc.bytesToHex(b.array()));
+		b.put(plainText);
+		b.put(plainText);
+		//for(int i = 0; i < plainText.length; i++){
+		//	b.put(plainText[i]);
+		//}
+		System.out.println("filled " + Misc.bytesToHex(b.array()));
+		System.out.println(b);
+		byte[]g = new byte[3];
+		b.get(g);
+		System.out.println("get first 3 " +Misc.bytesToHex(g));
+		System.out.println(b);
+		b.flip();
+		System.out.println("flipped " + Misc.bytesToHex(b.array()));
+		System.out.println(b);
+		b.get(g);
+		System.out.println("get 3 after flip " + Misc.bytesToHex(g));
+		System.out.println(b);
+		//b.flip();
+		b.put((byte) 0xff);
+		//System.out.println(Misc.bytesToHex(g));
+		System.out.println("put "+Misc.bytesToHex(b.array()));
+		System.out.println(b);
+		b.get(g);
+		System.out.println("get 3" + Misc.bytesToHex(g));
+		System.out.println(b);
+		b.flip();
+		System.out.println(b);
 	}
 	
 	public static void cryptoStreamTest(){
