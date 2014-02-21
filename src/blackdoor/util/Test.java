@@ -54,10 +54,10 @@ public class Test {
 		//System.out.println(InetAddress.getLocalHost().getAddress().length);
 		//fileHashTest();
 		//ticketTest();
-		//cryptoTest();
+		cryptoTest();
 		//cryptoStreamTest();
 		//bufferTest();
-		qTest();
+		//qTest();
 	}
 	public static void qTest(){
 		ByteQueue.main();

@@ -29,8 +29,8 @@ public class SHE {
 	private byte[] IV;
 	private byte[] key;
 	private boolean cfg;
-	private byte[] buffer = new byte[blockSize];
-	private int bufferIndex; //index at which to place next byte in buffer
+	private ByteBuffer buffer;
+	//private int bufferIndex; //index at which to place next byte in buffer
 	private MessageDigest mD;
 	
 	/**
@@ -42,6 +42,7 @@ public class SHE {
 		cfg = false;
 		mD = MessageDigest.getInstance(algorithm);
 		blockSize = mD.getDigestLength();
+		buffer = ByteBuffer.allocate(blockSize);
 	}
 	
 	/**
@@ -56,6 +57,7 @@ public class SHE {
 			e.printStackTrace();
 		}
 		blockSize = mD.getDigestLength();
+		buffer = ByteBuffer.allocate(blockSize);
 	}
 	/**
 	 * Creates a Cipher object.
@@ -69,6 +71,7 @@ public class SHE {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+		buffer = ByteBuffer.allocate(blockSize);
 	}
 	
 	/**
@@ -95,8 +98,8 @@ public class SHE {
 		this.IV = IV;
 		cfg = true;
 		blockNo = 0;
-		buffer = new byte[blockSize];
-		bufferIndex = 0;
+		buffer.clear();// = new byte[blockSize];
+		//bufferIndex = 0;
 	}
 	
 	private byte[] cryptBlock(){
@@ -108,7 +111,12 @@ public class SHE {
 		iv = Arrays.copyOf(iv, blockSize + iv.length);
 		//Misc.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
 		System.arraycopy(key, 0, iv, blockSize, blockSize);
-		return Misc.cleanXOR(buffer, mD.digest(iv));
+		buffer.flip();
+		//System.out.println(Misc.bytesToHex(buffer.array()) + " " + buffer);
+		byte[] toCrypt = new byte[blockSize];
+		buffer.get(toCrypt, 0, buffer.remaining());
+		buffer.clear();
+		return Misc.cleanXOR(toCrypt, mD.digest(iv));
 	}
 	
 	public boolean isConfigured(){
@@ -158,11 +166,13 @@ public class SHE {
 		}
 		if(input.length == 0)
 			return new byte[]{};//null;
-		if(bufferIndex != 0){
-			byte[] in2 = Arrays.copyOf(buffer, input.length + bufferIndex);//new byte[input.length + bufferIndex];
+		if(buffer.position() != 0){
+			int bufferRemain = buffer.remaining();
+			byte[] in2 = new byte[input.length + buffer.remaining()];//Arrays.copyOf(buffer., input.length + buffer.remaining());//new byte[input.length + bufferIndex];
+			buffer.get(in2, 0, buffer.remaining());
 			//System.out.println(Misc.bytesToHex(in2));
 			//System.arraycopy(buffer, 0, in2, 0, bufferIndex);
-			System.arraycopy(input, 0, in2, bufferIndex, input.length);
+			System.arraycopy(input, 0, in2, bufferRemain, input.length);
 			input = in2;
 		}
 		
@@ -170,19 +180,17 @@ public class SHE {
 		//System.out.println(numBlocks);
 		byte[] out = new byte[blockSize * numBlocks];
 		for(int i = 0; i < numBlocks; i++){
-			//System.out.println("i:"+i+" block:" + blockNo);
-			System.arraycopy(input, blockSize*i, buffer, 0, blockSize);
+			buffer.clear();
+			//System.out.println(buffer.remaining());
+			buffer.put(input, blockSize*i, blockSize);//System.arraycopy(input, blockSize*i, buffer, 0, blockSize);
 			System.arraycopy(cryptBlock(), 0, out, i * blockSize, blockSize);//TODO do encryption on buffer
 			blockNo++;
 		}
-		buffer = new byte[blockSize];
-		if(input.length % blockSize == 0){
-			
-			bufferIndex = 0;
-		}else{
-			//buffer = new byte[BLOCKSIZE];
-			System.arraycopy(input, numBlocks*blockSize, buffer, 0, input.length - numBlocks*blockSize);
-			bufferIndex = input.length - numBlocks*blockSize;
+		buffer.clear();// = new byte[blockSize];
+		if(!(input.length % blockSize == 0)){
+			buffer.put(input, numBlocks*blockSize, input.length - numBlocks*blockSize);
+			//System.arraycopy(input, numBlocks*blockSize, buffer, 0, input.length - numBlocks*blockSize);
+			//bufferIndex = input.length - numBlocks*blockSize;
 		}
 		//System.out.println(Misc.bytesToHex(out));
 		return out;
@@ -248,16 +256,18 @@ public class SHE {
 		byte[] main = update(input);
 		byte[] out;
 		//if buffer isn't empty add a padding indicator to the end of data
-		if(bufferIndex != 0){
-			
-			buffer[bufferIndex] = 0x69;
-			bufferIndex++;
+		if(buffer.position() != 0){
+			buffer.put((byte) 0x69);//buffer[bufferIndex] = 0x69;
+			//bufferIndex++;
 			//System.out.println(Misc.bytesToHex(buffer));
-			buffer = cryptBlock();
+			buffer.clear();
+			buffer.put(cryptBlock());
 			//add buffer to end of main
-			out = new byte[main.length + buffer.length];
+			out = new byte[main.length + buffer.remaining()];
 			System.arraycopy(main, 0, out, 0, main.length);
-			System.arraycopy(buffer, 0, out, main.length, buffer.length);
+			int bufferRemain = buffer.remaining();
+			buffer.get(out, main.length, bufferRemain);
+			//System.arraycopy(buffer, 0, out, main.length, buffer.length);
 		}else{
 			//remove padding
 			int endIndex = main.length-1 ;
@@ -277,7 +287,7 @@ public class SHE {
 		IV = null;
 		key = null;
 		cfg = false;
-		bufferIndex = 0;
+		buffer.clear();//bufferIndex = 0;
 		
 		return out;
 	}
