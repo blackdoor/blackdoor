@@ -122,7 +122,7 @@ public class ByteQueue {
 		start = (start + length) % array.length;
 	}
 	
-	private int filled(){
+	public int filled(){
 		if(start > end)
 			return array.length-start+end;
 		else return end - start;
