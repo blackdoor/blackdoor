@@ -3,10 +3,13 @@
  */
 package blackdoor.crypto;
 
+import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -342,6 +345,49 @@ public class SHE {
 		 */
 		public SHE getCipher(){
 			return cipher;
+		}
+		
+	}
+	
+	public static class EncryptedInputStream extends FilterInputStream{
+		private SHE cipher;
+		private ByteBuffer buffer;
+		
+		public EncryptedInputStream(InputStream in, SHE cipher) {
+			super(in);
+			if(!cipher.isConfigured())
+				throw new RuntimeException("Cipher not configured.");
+			this.cipher = cipher;
+			buffer = ByteBuffer.allocate(cipher.blockSize*2);
+		}
+		
+		private void bufferBlock() throws IOException{
+			byte[] plainText = new byte[cipher.blockSize];
+			in.read(plainText);
+			buffer.put(cipher.update(plainText));
+		}
+		
+		public int read() throws IOException{
+			if(buffer.hasRemaining())
+				return buffer.get();
+			else{
+				bufferBlock();
+				return buffer.get();
+			}
+		}
+		
+		public int read(byte[] b) throws IOException{
+			
+		}
+		
+		public int read(byte[]b, int off, int len) throws IOException{
+			byte[] ret = new byte[len-off];
+			if(in.read(ret, off, len) == -1)
+				return -1;
+			ret = cipher.update(ret);
+			if(ret.length > len-off){
+				
+			}
 		}
 		
 	}
