@@ -179,7 +179,7 @@ public class Test {
 		byte[] IV = new byte[32];
 		byte[] bigIV = new byte[64];
 		byte[] plainText = new byte[1000];
-		//byte[] plainText2 = new byte[100000000];
+		byte[] plainText2 = new byte[1048576];
 		byte[] key = new byte[32];
 		for(int i = 0; i < plainText.length; i++){
 			plainText[i] = (byte) ((i/32) +1);
@@ -190,33 +190,46 @@ public class Test {
 		
 		
 		
-		long total=0;
+		double total=0;
 		double average;
 		StopWatch time = new StopWatch(false);
 		SHE cipher = new SHE();
 		byte[] cipherText;
 		byte[] cipherTemp;
 		byte[] cipherTemp2;
-		IV = cipher.init(key);
-		System.out.println("T1");
-		cipherTemp = cipher.update(Arrays.copyOfRange(plainText, 0, 72));
-		System.out.println("T2");
-		cipherTemp2 = cipher.doFinal(Arrays.copyOfRange(plainText, 72, plainText.length));
-		cipherText = new byte[cipherTemp.length + cipherTemp2.length];
-		System.arraycopy(cipherTemp, 0, cipherText, 0, cipherTemp.length);
-		System.arraycopy(cipherTemp2, 0, cipherText, cipherTemp.length,	cipherTemp2.length);
-		System.out.println(Misc.bytesToHex(cipherText));
-		SHE.EncryptionResult cipherResult = new SHE.EncryptionResult(IV, cipherText);
-		System.out.println(Misc.bytesToHex(cipherResult.simpleSerial()));
-		System.out.println(cipherResult);
-		//cipher.init(IV, key);
-		//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
-		SHE.EncryptionResult cipherResult2 = new SHE.EncryptionResult(cipherResult.simpleSerial());
-		System.out.println(cipherResult2);
-		System.out.println(Misc.bytesToHex(cipherResult2.getText()));
-		cipher.init(cipherResult2.getIv(), key);
+		cipher.init(IV, key);
+//		System.out.println("T1");
+//		cipherTemp = cipher.update(Arrays.copyOfRange(plainText, 0, 72));
+//		System.out.println("T2");
+//		cipherTemp2 = cipher.doFinal(Arrays.copyOfRange(plainText, 72, plainText.length));
+//		cipherText = new byte[cipherTemp.length + cipherTemp2.length];
+//		System.arraycopy(cipherTemp, 0, cipherText, 0, cipherTemp.length);
+//		System.arraycopy(cipherTemp2, 0, cipherText, cipherTemp.length,	cipherTemp2.length);
+//		System.out.println(Misc.bytesToHex(cipherText));
+//		SHE.EncryptionResult cipherResult = new SHE.EncryptionResult(IV, cipherText);
+//		System.out.println(Misc.bytesToHex(cipherResult.simpleSerial()));
+//		System.out.println(cipherResult);
+//		//cipher.init(IV, key);
+//		//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
+//		SHE.EncryptionResult cipherResult2 = new SHE.EncryptionResult(cipherResult.simpleSerial());
+//		System.out.println(cipherResult2);
+//		System.out.println(Misc.bytesToHex(cipherResult2.getText()));
+//		cipher.init(cipherResult2.getIv(), key);
+//		
+//		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherResult2.getText())));
 		
-		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherResult2.getText())));
+		
+		for(int i = 0; i < 100; i++){
+			cipher.init(IV, key);
+			time.mark();
+			cipherText = cipher.doFinal(plainText2);
+			//System.out.println(Misc.bytesToHex(cipherText));
+			//cipher.init(IV, key);
+			//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
+			total += time.checkS();
+		}
+		System.out.println(total/12);
+		
 		
 
 //		for(int i = 0; i < 2; i++){
