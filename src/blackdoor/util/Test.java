@@ -228,7 +228,7 @@ public class Test {
 			//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
 			total += time.checkS();
 		}
-		System.out.println(plainText2.length/(total/100));
+		System.out.println((total/100));
 		
 		
 
