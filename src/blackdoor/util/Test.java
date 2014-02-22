@@ -57,7 +57,7 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		cryptoTest();
-		
+		cryptoTest();
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
@@ -227,7 +227,7 @@ public class Test {
 //		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherResult2.getText())));
 		
 
-		for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 1000; i++){
 			cipher.init(IV, key);
 			time.mark();
 			cipherText = cipher.doFinal(plainText2);
@@ -236,7 +236,7 @@ public class Test {
 			//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
 			total += time.checkS();
 		}
-		System.out.println((total/100));
+		System.out.println((total/1000));
 		
 //		for(int i = 0; i < 2; i++){
 //			System.out.println("Start");
