@@ -57,7 +57,7 @@ public class SHE {
 			e.printStackTrace();
 		}
 		blockSize = mD.getDigestLength();
-		buffer = ByteBuffer.allocate(blockSize);
+		buffer = ByteBuffer.allocateDirect(blockSize);
 	}
 	/**
 	 * Creates a Cipher object.
@@ -71,7 +71,7 @@ public class SHE {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
-		buffer = ByteBuffer.allocate(blockSize);
+		buffer = ByteBuffer.allocateDirect(blockSize);
 	}
 	
 	/**
