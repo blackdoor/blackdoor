@@ -42,7 +42,7 @@ public class SHE {
 		cfg = false;
 		mD = MessageDigest.getInstance(algorithm);
 		blockSize = mD.getDigestLength();
-		buffer = ByteBuffer.allocate(blockSize);
+		buffer = ByteBuffer.allocateDirect(blockSize);
 	}
 	
 	/**
