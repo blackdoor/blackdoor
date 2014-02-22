@@ -27,11 +27,13 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.Hash;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
+import blackdoor.crypto.SHE.EncryptedInputStream;
 import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
 
@@ -54,10 +56,11 @@ public class Test {
 		//System.out.println(InetAddress.getLocalHost().getAddress().length);
 		//fileHashTest();
 		//ticketTest();
-		cryptoTest();
-		//cryptoStreamTest();
+		//cryptoTest();
+		
 		//bufferTest();
 		//qTest();
+		cryptoStreamTest();
 	}
 	public static void qTest(){
 		ByteQueue.main();
@@ -99,7 +102,7 @@ public class Test {
 	}
 	
 	public static void cryptoStreamTest(){
-		File outFile = new File("out.txt");
+		File file = new File("out.txt");
 		FileOutputStream fos = null;
 		SHE.EncryptedOutputStream eos = null;
 		SHE cipher = new SHE();
@@ -112,7 +115,7 @@ public class Test {
 		System.out.println(Misc.bytesToHex(plainText));
 		cipher.init(IV, key);
 		try {
-			fos = new FileOutputStream(outFile);
+			fos = new FileOutputStream(file);
 			eos = new SHE.EncryptedOutputStream(fos, cipher);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -125,7 +128,7 @@ public class Test {
 			//System.out.println(Misc.bytesToHex(debug));
 			//fos.write(debug);
 			eos.write(plainText, 0 ,40);
-			//eos.write(plainText, 20, plainText.length-20);
+			eos.write(plainText, 40, plainText.length-40);
 			eos.close();
 			System.out.println();
 		} catch (IOException e) {
@@ -134,8 +137,13 @@ public class Test {
 
 		cipher.init(IV, key);
 		try {
-			byte[] readFile = Files.readAllBytes(outFile.toPath());
-			System.out.println(Misc.bytesToHex(cipher.doFinal(readFile)));
+			FileInputStream fis = new FileInputStream(file);
+			EncryptedInputStream eis = new EncryptedInputStream(fis, cipher);
+			byte[] readFile = new byte[(int) file.length()];
+
+			eis.read(readFile);
+			eis.close();
+			System.out.println(Misc.bytesToHex(readFile));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -84,7 +84,7 @@ public class ByteQueue {
 	}
 	
 	public void enQueue(byte[] src, int offset, int length){
-		if(isFull()){
+		if(length > capacity() - filled()){
 			if(!resizable)
 				throw new BufferOverflowException();
 			else{
@@ -150,7 +150,7 @@ public class ByteQueue {
 	
 	@Override
 	public String toString() {
-		String ret = "ByteQueue [array.length = " + array.length + " capacity = " + capacity() + " buffer = ";
+		String ret = "ByteQueue [array.length = " + array.length + " capacity = " + capacity() + " filled = " + filled() +" buffer = ";
 		if(end > start)
 			ret = ret + Misc.bytesToHex(Arrays.copyOfRange(array, start, end));
 		else{
