@@ -40,17 +40,26 @@ public class ByteQueue {
 		System.out.println(q.details());
 	}
 	
+	/**
+	 * Create new non-resizable ByteQueue with default size of 99 bytes.
+	 */
 	public ByteQueue(){
 		array = new byte[100];
 		resizable = false;
 		zero();
 	}
+	/**
+	 * Create new non-resizable ByteQueue with size bytes.
+	 */
 	public ByteQueue(int size){
 		array = new byte[size];
 		resizable = false;
 		zero();
 	}
-	
+	/**
+	 * check if the Queue is full
+	 * @return true if the Queue would resize or throw a buffer overflow at the next enQueue call
+	 */
 	public boolean isFull(){
 		int endmod = (end + 1) % array.length;
 		//System.out.println("start : " + start + " end: " + end + " endmod: " + endmod + " size: " + size());	
@@ -66,6 +75,10 @@ public class ByteQueue {
 		end = 0;
 	}
 	
+	/**
+	 * Grow or shrink the queue to newSize bytes. If newSize < filled() an underflow exception will be thrown.
+	 * @param newSize
+	 */
 	public void resize(int newSize){
 		byte[] newArray = new byte[newSize];
 		int filled = filled();
@@ -75,14 +88,28 @@ public class ByteQueue {
 		end = filled;
 	}
 	
+	/**
+	 * Shrink the queue so that capacity() == filled()
+	 */
 	public void trim(){
 		resize(filled());
 	}
 	
+	/**
+	 * Add an array of bytes into the queue.
+	 * Equivalent to calling enQueue(src, 0, src.length)
+	 * @param src - the array of bytes to add to the queue
+	 */
 	public void enQueue(byte[] src){
 		enQueue(src, 0, src.length);
 	}
 	
+	/**
+	 * Add a part of an array of bytes into the queue.
+	 * @param src - the source array of bytes to add to the queue.
+	 * @param offset - the start index of src from which bytes should be enqueued.
+	 * @param length - the number of bytes from offset in src that should be enqueued.
+	 */
 	public void enQueue(byte[] src, int offset, int length){
 		if(length > capacity() - filled()){
 			if(!resizable)
@@ -103,12 +130,23 @@ public class ByteQueue {
 		//System.out.println(Misc.bytesToHex(array));
 	}
 	
+	/**
+	 * Remove and return length bytes from the queue.
+	 * @param length - the number of bytes to remove from the queue.
+	 * @return the first length bytes that were entered into the queue.
+	 */
 	public byte[] deQueue(int length){
 		byte[] ret = new byte[length];
 		deQueue(ret, 0, length);
 		return ret;
 	}
 	
+	/**
+	 * Remove length bytes from the queue and put them into an array.
+	 * @param dest - the destination array to put the bytes in.
+	 * @param offset - the start index of dest to which bytes should be dequeued.
+	 * @param length - the number of bytes from offset in dest that bytes will be copied into.
+	 */
 	public void deQueue(byte[] dest, int offset, int length){
 		if(length > filled()){
 			throw new BufferUnderflowException();
@@ -122,6 +160,10 @@ public class ByteQueue {
 		start = (start + length) % array.length;
 	}
 	
+	/**
+	 * 
+	 * @return the number of bytes in the queue.
+	 */
 	public int filled(){
 		if(start > end)
 			return array.length-start+end;
@@ -136,14 +178,23 @@ public class ByteQueue {
 		return array.length-1;
 	}
 
+	/**
+	 * 
+	 * @return true if the queue will grow instead of throwing BufferOverflowException on enQueue.
+	 */
 	public boolean isResizable() {
 		return resizable;
 	}
 
+	/**
+	 * change whether the queue will grow instead of throwing BufferOverflowException on enQueue.
+	 * @param resizable - set to true for growing instead of throwing.
+	 */
 	public void setResizable(boolean resizable) {
 		this.resizable = resizable;
 	}
 
+	
 	public String details(){
 		return "start = " + start + " end = " + end + " array = " + Misc.bytesToHex(array) + "\n" + toString();
 	}

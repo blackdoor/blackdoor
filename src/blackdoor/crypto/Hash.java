@@ -88,6 +88,7 @@ public class Hash {
 		}
 		return input;
 	}
+	
 	private static byte[] getHash(String algorithm, byte[] input){
 		if(input == null)
 			throw new RuntimeException("input not defined");
@@ -122,6 +123,11 @@ public class Hash {
 		return getSHA256(input);
 	}
 
+	/**
+	 * Get the SHA256 Hash of input
+	 * @param input - the bytes to hash
+	 * @return 32 bytes that represent the SHA256 hash of input;
+	 */
 	public static byte[] getSHA256(byte[] input){
 		return getHash("SHA-256", input);
 	}
