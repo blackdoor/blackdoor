@@ -265,23 +265,43 @@ public class Watch implements Serializable{
 		return df.format(stupid.getTime());
 	}
 	public static class StopWatch{
-		long startTime;
+		private long startTime;
+		/**
+		 * 
+		 * @param start if true start the watch when the class is created
+		 */
 		public StopWatch(boolean start){
 			if(start){
 				startTime = System.nanoTime();
 			}
 			else startTime = 0;
 		}
+		
+		/**
+		 * mark the current time. Future calls to check$ will return the elapsed time between that call and mark
+		 */
 		public void mark(){
 			startTime = System.nanoTime();
 		}
+		/**
+		 * 
+		 * @return the number of nanoseconds since the time was marked or the stopwatch was created
+		 */
 		public long checkNS(){
 			return System.nanoTime() - startTime;
 		}
+		/**
+		 * 
+		 * @return the number of seconds since the time was marked or the stopwatch was created
+		 */
 		public double checkS(){
 			double time = System.nanoTime() - startTime;
 			return (double)time / 1000000000.0 ;
 		}
+		/**
+		 * 
+		 * @return the number of milliseconds since the time was marked or the stopwatch was created
+		 */
 		public double checkMS(){
 			double time = System.nanoTime() - startTime;
 			return (double)time / 1000000.0 ;
