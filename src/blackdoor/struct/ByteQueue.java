@@ -11,6 +11,9 @@ import blackdoor.util.Misc;
 
 /**
  * @author nfischer3
+ * A FIFO queue data structure for bytes implemented with a circular array.
+ * The java.nio.ByteBuffer class offers slightly faster performance, 
+ * but greatly increased difficulty of use if you want to remove elements between writes.
  *
  */
 public class ByteQueue {
@@ -66,6 +69,7 @@ public class ByteQueue {
 		return endmod == start;
 	}
 	
+	@SuppressWarnings("unused")
 	private boolean isEmpty(){
 		return end == start;
 	}

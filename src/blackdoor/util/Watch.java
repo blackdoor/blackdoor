@@ -14,6 +14,10 @@ import java.util.TimeZone;
  */
 public class Watch implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	protected Calendar stupid; // im a terrible person
 	
 	/**

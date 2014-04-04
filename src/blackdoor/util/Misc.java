@@ -10,6 +10,7 @@ import javax.xml.bind.DatatypeConverter;
 
 public class Misc {
 	
+	public static final char NULL = '\u0000';
 	
 	/**
 	 * Get the byte representation of num

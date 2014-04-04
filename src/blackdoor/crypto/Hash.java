@@ -13,8 +13,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import blackdoor.util.Misc;
 
-import blackdoor.util.Misc;
-
 /**
  * @author kAG0
  * non-static methods in this class are not suitable for use by... anyone. really they should be killed.
