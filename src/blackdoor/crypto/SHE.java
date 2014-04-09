@@ -21,7 +21,6 @@ import blackdoor.util.Misc;
 /**
  * @author nfischer3
  * Secure Hash Encryption. SHA256 in CTR mode implemented with methods similar to the standard Crypto.java library.
- * uses SHE256 v1.1 (H(key || incremented IV) instead of H(key XOR incremented IV))
  */
 public class SHE {
 	
@@ -104,11 +103,9 @@ public class SHE {
 		byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
 		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
 		iv[blockNo % blockSize] += blockNo + 1;
-		//iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
-		//Misc.XORintoA(iv, key);
-		iv = Arrays.copyOf(iv, blockSize + iv.length);
-		//Misc.arraycopy(key, 0, iv, BLOCKSIZE, BLOCKSIZE);
-		System.arraycopy(key, 0, iv, blockSize, blockSize);
+		iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
+		//iv = Arrays.copyOf(iv, blockSize + iv.length);
+		//System.arraycopy(key, 0, iv, blockSize, blockSize);
 		return Misc.cleanXOR(buffer, mD.digest(iv));
 	}
 	
