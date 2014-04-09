@@ -103,7 +103,7 @@ public class SHE {
 		byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
 		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
 		iv[blockNo % blockSize] += blockNo + 1;
-		iv = Misc.cleanXOR(iv, key); //for some reason this line runs much faster than the following two lines
+		iv = Misc.cleanXOR(iv, key); //this line runs much faster than the following two lines because the following make a larger IV which takes longer to digest
 		//iv = Arrays.copyOf(iv, blockSize + iv.length);
 		//System.arraycopy(key, 0, iv, blockSize, blockSize);
 		return Misc.cleanXOR(buffer, mD.digest(iv));
