@@ -170,7 +170,7 @@ public class SHE {
 		for(int i = 0; i < numBlocks; i++){
 			//System.out.println("i:"+i+" block:" + blockNo);
 			System.arraycopy(input, blockSize*i, buffer, 0, blockSize);
-			System.arraycopy(cryptBlock(), 0, out, i * blockSize, blockSize);//TODO do encryption on buffer
+			System.arraycopy(cryptBlock(), 0, out, i * blockSize, blockSize);
 			blockNo++;
 		}
 		buffer = new byte[blockSize];
@@ -261,7 +261,7 @@ public class SHE {
 			int endIndex = main.length-1 ;
 			while(main[endIndex] == 0 || main[endIndex] == 0x69){
 				endIndex --;
-				if(main[endIndex] == 0x69){
+				if(endIndex != 0 && main[endIndex] == 0x69){
 					endIndex--;
 					break;
 				}

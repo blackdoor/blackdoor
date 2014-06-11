@@ -230,10 +230,10 @@ public class Test {
 		for(int i = 0; i < 100; i++){
 			cipher.init(IV, key);
 			time.mark();
-			cipherText = cipher.doFinal(plainText2);
-			//System.out.println(Misc.bytesToHex(cipherText));
-			//cipher.init(IV, key);
-			//System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
+			cipherText = cipher.doFinal(plainText);
+			System.out.println(Misc.bytesToHex(cipherText));
+			cipher.init(IV, key);
+			System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
 			total += time.checkS();
 		}
 		System.out.println((100/total));
