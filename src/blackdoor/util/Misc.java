@@ -160,12 +160,13 @@ public class Misc {
 	 * this xor's the parameters, which must be the same length. 
 	 * after calling only a will be changed to a xor b
 	 */
-	public static void XORintoA(byte[] a, byte[] b){
+	public static byte[] XORintoA(byte[] a, byte[] b){
 		if(a.length != b.length)
 			throw new RuntimeException("Parameters are not same length for xor.");
 		for(int i = 0; i < a.length; i++){
 			a[i] = (byte) (a[i]^b[i]);
 		}
+		return a;
 	}
 	/**
 	 * returns a XOR b, leaves a and b unchanged

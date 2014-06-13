@@ -28,6 +28,7 @@ public class SHE {
 	private int blockNo;
 	private byte[] IV;
 	private byte[] key;
+	private byte[] prehash;
 	private boolean cfg;
 	private byte[] buffer = new byte[blockSize];
 	private int bufferIndex; //index at which to place next byte in buffer
@@ -93,6 +94,7 @@ public class SHE {
 			throw new RuntimeException("key and IV need to be same as block size (" + blockSize + ")."); //TODO subclass exception
 		this.key = key;
 		this.IV = IV;
+		prehash = Misc.cleanXOR(IV, key);
 		cfg = true;
 		blockNo = 0;
 		buffer = new byte[blockSize];
@@ -100,13 +102,28 @@ public class SHE {
 	}
 	
 	private byte[] cryptBlock(){
-		byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
+		//byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
 		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
-		iv[blockNo % blockSize] += blockNo + 1;
-		iv = Misc.cleanXOR(iv, key); //this line runs much faster than the following two lines because the following make a larger IV which takes longer to digest
+		//iv[blockNo % blockSize] += blockNo + 1;
+		
+		byte[] ret;
+		int i = blockNo % blockSize;
+		int inc = (blockNo/blockSize) + 1;
+		prehash[i] ^= key[i];					// expose IV[i] in prehash
+		prehash[i] += inc;	// apply ctr
+		prehash[i] ^= key[i];					// cover IV[i] in prehash with key[i]
+		ret = Misc.XORintoA(mD.digest(prehash), buffer);
+		prehash[i] ^= key[i];					// expose IV[i[ in prehash
+		prehash[i] -= inc;	// remove ctr
+		prehash[i] ^= key[i];					// cover IV[i[ in prehash with key[i]
+		
+		
+		//iv[blockNo % blockSize] += (blockNo/blockSize) + 1; // this way allows more blocks
+		//System.out.println(Misc.bytesToHex(iv));
+		//iv = Misc.cleanXOR(iv, key); //this line runs much faster than the following two lines because the following make a larger IV which takes longer to digest
 		//iv = Arrays.copyOf(iv, blockSize + iv.length);
 		//System.arraycopy(key, 0, iv, blockSize, blockSize);
-		return Misc.cleanXOR(buffer, mD.digest(iv));
+		return ret;//Misc.cleanXOR(buffer, mD.digest(iv));
 	}
 	
 	public boolean isConfigured(){
@@ -261,7 +278,7 @@ public class SHE {
 			int endIndex = main.length-1 ;
 			while(main[endIndex] == 0 || main[endIndex] == 0x69){
 				endIndex --;
-				if(endIndex != 0 && main[endIndex] == 0x69){
+				if(endIndex != 0 && main[endIndex] == 0x69){ //TODO removing padding needs fixing
 					endIndex--;
 					break;
 				}

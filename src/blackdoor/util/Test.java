@@ -9,13 +9,34 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.text.PlainDocument;
 import javax.xml.bind.DatatypeConverter;
 
 //import org.apache.commons.io.FileUtils;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -34,6 +55,7 @@ import blackdoor.crypto.SHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.crypto.SHE.EncryptedInputStream;
+import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
 
@@ -42,8 +64,10 @@ public class Test {
 	/**
 	 * @param args
 	 * @throws IOException 
+	 * @throws NoSuchPaddingException 
+	 * @throws NoSuchAlgorithmException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException {
 		//byte[] b = new byte[]{23, 57, 23, 0};
 		//byte[] a = new byte[]{(byte) 0x1111, 12, 3,4};
 		//System.out.println(a);
@@ -57,7 +81,8 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		cryptoTest();
-		cryptoTest();
+		SHEStreamTest();
+		//cryptoTest();
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
@@ -99,6 +124,36 @@ public class Test {
 		System.out.println(b);
 		b.flip();
 		System.out.println(b);
+	}
+	
+	static void SHEStreamTest() throws NoSuchAlgorithmException, NoSuchPaddingException{
+		SHEStream stream = new SHEStream();
+		byte[] IV = new byte[32];
+
+		byte[] plainText = new byte[1000];
+		byte[] plainText2 = new byte[1048576];
+		byte[] key = new byte[32];
+		for(int i = 0; i < plainText.length; i++){
+			plainText[i] = (byte) ((i/32) +1);
+		}
+		
+				
+		stream.init(IV, key);
+		StopWatch timer = new StopWatch(true);
+		timer.mark();
+		stream.crypt(plainText2);
+		System.out.println(timer.checkS());
+		stream.init(IV, key);
+		//byte result[] = stream.crypt(ciphertext);
+		
+
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		
+		timer.mark();
+		//Arrays.copyOf(plainText2, plainText2.length);
+		md.digest(plainText2);
+		System.out.println(timer.checkS());
+		
 	}
 	
 	public static void cryptoStreamTest(){
@@ -194,10 +249,6 @@ public class Test {
 		}
 		
 		
-		
-		
-		
-		
 		double total=0;
 		double average;
 		StopWatch time = new StopWatch(false);
@@ -205,7 +256,7 @@ public class Test {
 		byte[] cipherText;
 		byte[] cipherTemp;
 		byte[] cipherTemp2;
-		IV = cipher.init(key);
+		//IV = cipher.init(key);
 //		System.out.println("T1");
 //		cipherTemp = cipher.update(Arrays.copyOfRange(plainText, 0, 72));
 //		System.out.println("T2");
@@ -226,17 +277,19 @@ public class Test {
 //		
 //		System.out.println(Misc.bytesToHex(cipher.doFinal(cipherResult2.getText())));
 		
-
-		for(int i = 0; i < 100; i++){
+		int tests = 1;
+		for(int i = 0; i < tests; i++){
 			cipher.init(IV, key);
 			time.mark();
 			cipherText = cipher.doFinal(plainText);
+			total += time.checkS();
 			System.out.println(Misc.bytesToHex(cipherText));
 			cipher.init(IV, key);
 			System.out.println(Misc.bytesToHex(cipher.doFinal(cipherText)));
-			total += time.checkS();
+			
 		}
-		System.out.println((100/total));
+		average = tests/total;
+		System.out.println(plainText.length/average/1000 + " kilobytes/sec");
 		
 //		for(int i = 0; i < 2; i++){
 //			System.out.println("Start");
