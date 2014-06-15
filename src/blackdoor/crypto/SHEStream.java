@@ -34,6 +34,13 @@ public class SHEStream {
 		}
 	}
 	
+	/**
+	 * @return the cfg
+	 */
+	public boolean isConfigured() {
+		return cfg;
+	}
+
 	public byte[] init(byte[] key){
 		keySize = key.length;
 		byte[] iv = new byte[keySize];
@@ -44,7 +51,7 @@ public class SHEStream {
 	
 	public void init(byte[] IV, byte[] key) {
 		if(IV.length != key.length)
-			throw new RuntimeException("Key and IV size must be equal.");
+			throw new Exceptions.InvalidKeyException("Key and IV size must be equal.");
 		keySize = key.length;
 		this.key = key;
 		prehash = Misc.cleanXOR(IV, key);
@@ -56,7 +63,7 @@ public class SHEStream {
 	
 	public byte[] crypt(byte[] text){
 		if(!cfg)
-			throw new RuntimeException("Cipher not initialized.");
+			throw new Exceptions.CipherNotInitializedException();
 		if(text.length > buffer.capacity())
 			buffer.resize(text.length + blockSize);
 		while(buffer.filled() < text.length){
