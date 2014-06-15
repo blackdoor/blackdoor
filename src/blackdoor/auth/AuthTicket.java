@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import blackdoor.crypto.SHE;
+import blackdoor.crypto.HistoricSHE;
 import blackdoor.util.Misc;
 import blackdoor.util.Watch;
 
@@ -111,15 +111,15 @@ public class AuthTicket implements Serializable{
 	 * @return
 	 */
 	public byte[] generate(byte[] key){
-		SHE cipher = new SHE();
+		HistoricSHE cipher = new HistoricSHE();
 		byte[] IV = cipher.init(key);
 		System.out.println("IV: " + Misc.bytesToHex(IV));
-		return new SHE.EncryptionResult(IV, cipher.doFinal(getPlainTicketText())).simpleSerial();
+		return new HistoricSHE.EncryptionResult(IV, cipher.doFinal(getPlainTicketText())).simpleSerial();
 	}
 	
 	private byte[] decrypt(byte[] key, byte[] ticket){
-		SHE cipher = new SHE();
-		SHE.EncryptionResult result = new SHE.EncryptionResult(ticket);
+		HistoricSHE cipher = new HistoricSHE();
+		HistoricSHE.EncryptionResult result = new HistoricSHE.EncryptionResult(ticket);
 		cipher.init(result.getIv(), key);
 		return cipher.doFinal(result.getText());
 		

@@ -50,12 +50,14 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
-import blackdoor.crypto.Hash;
 import blackdoor.crypto.SHE;
+import blackdoor.crypto.Hash;
+import blackdoor.crypto.HistoricSHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
-import blackdoor.crypto.SHE.EncryptedInputStream;
+import blackdoor.crypto.HistoricSHE.EncryptedInputStream;
 import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
@@ -82,7 +84,7 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-		//SHEStreamTest();
+		SHEStreamTest();
 		NISTBench();
 		//cryptoTest();
 		//bufferTest();
@@ -188,7 +190,12 @@ public class Test {
 	}
 	
 	static void SHEStreamTest() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
-		SHEStream stream = new SHEStream();
+		SHE s = SHE.getInstance();
+		s.init(new byte[5]);
+		s.doFinal(new byte[300]);
+		
+		
+		SHEStream stream = SHEStream.getInstance();
 		byte[] IV = new byte[32];
 		byte[] thing = new byte[16];
 		byte[] plainText = new byte[1000];
@@ -199,6 +206,7 @@ public class Test {
 		}
 		StopWatch timer = new StopWatch(true);
 		
+		
 		 Cipher cipher = Cipher.getInstance("AES/CTR/PKCS5Padding");
          final SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
          cipher.init(Cipher.ENCRYPT_MODE, secretKey);
@@ -207,12 +215,10 @@ public class Test {
 		System.out.println("AES " + timer.checkMS());
 		
 		stream.init(thing, thing);
-		stream.blockSize = 16;
 		timer.mark();
 		stream.crypt(plainText2);
 		System.out.println("128 " + timer.checkMS());
 		
-		stream.blockSize = 32;
 		stream.init(IV, key);
 		timer.mark();
 		stream.crypt(plainText2);
@@ -236,8 +242,8 @@ public class Test {
 	public static void cryptoStreamTest(){
 		File file = new File("out.txt");
 		FileOutputStream fos = null;
-		SHE.EncryptedOutputStream eos = null;
-		SHE cipher = new SHE();
+		HistoricSHE.EncryptedOutputStream eos = null;
+		HistoricSHE cipher = new HistoricSHE();
 		byte[] IV = new byte[32];
 		byte[] plainText = new byte[1000];
 		byte[] key = new byte[32];
@@ -248,7 +254,7 @@ public class Test {
 		cipher.init(IV, key);
 		try {
 			fos = new FileOutputStream(file);
-			eos = new SHE.EncryptedOutputStream(fos, cipher);
+			eos = new HistoricSHE.EncryptedOutputStream(fos, cipher);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -305,8 +311,8 @@ public class Test {
 		//System.out.println(Misc.bytesToHex(pass));
 		byte[] ticket = tic1.generate(pass);
 		//System.out.println(Misc.bytesToHex(ticket));
-		SHE cipher = new SHE();
-		SHE.EncryptionResult result = new SHE.EncryptionResult(ticket);
+		HistoricSHE cipher = new HistoricSHE();
+		HistoricSHE.EncryptionResult result = new HistoricSHE.EncryptionResult(ticket);
 		cipher.init(result.getIv(), pass);
 		System.out.println("Test: " + Misc.bytesToHex(cipher.doFinal(result.getText())));
 		AuthTicket tic2 = new AuthTicket(pass, ticket);
@@ -329,7 +335,7 @@ public class Test {
 		double total=0;
 		double average;
 		StopWatch time = new StopWatch(false);
-		SHE cipher = new SHE();
+		HistoricSHE cipher = new HistoricSHE();
 		byte[] cipherText;
 		byte[] cipherTemp;
 		byte[] cipherTemp2;

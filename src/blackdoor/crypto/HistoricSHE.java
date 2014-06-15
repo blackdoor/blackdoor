@@ -3,354 +3,492 @@
  */
 package blackdoor.crypto;
 
+import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.nio.BufferUnderflowException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.List;
 
-import blackdoor.crypto.Crypto.EncryptionResult;
+import blackdoor.struct.ByteQueue;
 import blackdoor.util.Misc;
 
-import javax.xml.bind.DatatypeConverter;
-
-//import portunes.util.Crypto.EncryptionResult;
-
 /**
- * @author kAG0
- * a class containing simple static implementations of secure but non-standardized encryption algorithms
- * just SHE for now actually
- * 
- * Recommended usage: 	large inputs | stream cipher: create an instance of SHE and pass blocks to calculateSHEBlock, pass the final block to claculateFinalSHEBlock.
- * 						small inputs: just call doSHE
- * 
+ * @author nfischer3
+ * Secure Hash Encryption. SHA256 in CTR mode implemented with methods similar to the standard Crypto.java library.
  */
-@Deprecated //this is the old SHE.java, replaced with what was CleanSHE.java. This class still works but has too many methods and is messy.
 public class HistoricSHE {
-	public static final int blockSize = 32;
+	
+	public int blockSize;// = 32;
 	private int blockNo;
 	private byte[] IV;
 	private byte[] key;
-	private boolean configured;
-
-
+	private byte[] prehash;
+	private boolean cfg;
+	private byte[] buffer = new byte[blockSize];
+	private int bufferIndex; //index at which to place next byte in buffer
+	private MessageDigest mD;
+	
 	/**
-	 * deprecated, use default constructor and configure() instead.
-	 * @param key
-	 * @param IV
+	 * Creates a Cipher object with specified algorithm.
+	 * @param algorithm the algorithm to use for this cipher.
 	 */
-	@Deprecated
-	HistoricSHE(byte[] key, byte[] IV){
-		if(IV.length == blockSize)
-			this.IV = IV;
-		else
-			throw new RuntimeException("invalid IV length");
-		if(key.length == blockSize)
-			this.IV = key;
-		else
-			throw new RuntimeException("invalid key length");
+	public HistoricSHE(String algorithm) throws NoSuchAlgorithmException{
 		blockNo = 0;
+		cfg = false;
+		mD = MessageDigest.getInstance(algorithm);
+		blockSize = mD.getDigestLength();
 	}
-	HistoricSHE(){
-		configured = false;
+	
+	/**
+	 * Creates a Cipher object.
+	 */
+	public HistoricSHE(Algorithm algorithm){
 		blockNo = 0;
+		cfg = false;
+		try {
+			mD = MessageDigest.getInstance(algorithm.getAlgorithm());
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		blockSize = mD.getDigestLength();
 	}
-
-	public void configure(byte[] key, byte[] IV){
-		if(IV.length == blockSize)
-			this.IV = IV;
-		else
-			throw new RuntimeException("invalid IV length");
-		if(key.length == blockSize)
-			this.IV = key;
-		else
-			throw new RuntimeException("invalid key length");
+	/**
+	 * Creates a Cipher object.
+	 */
+	public HistoricSHE(){
+		blockSize = 32;
 		blockNo = 0;
-		configured = true;
+		cfg = false;
+		try {
+			mD = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
 	}
-
-	public void setIV(byte[] iV) {
-		IV = iV;
+	
+	/**
+	 * Initializes the cipher with key, creates a random IV to use with the cipher.
+	 * @param key A 256 bit key to encrypt with.
+	 * @return A 256 bit IV that has been created for this cipher to use.
+	 */
+	public byte[] init(byte[] key){
+		byte[] iv = new byte[blockSize];
+		new SecureRandom().nextBytes(iv);
+		init(iv, key);
+		return iv;
 	}
-	public void setKey(byte[] key) {
+	
+	/**
+	 * Initializes the cipher with key and IV
+	 * @param IV A 256 bit initialization vector to use for the cipher.
+	 * @param key A 256 bit key to encrypt with.
+	 */
+	public void init(byte[] IV, byte[] key){
+		if(IV.length != blockSize || key.length != blockSize)
+			throw new RuntimeException("key and IV need to be same as block size (" + blockSize + ")."); //TODO subclass exception
 		this.key = key;
+		this.IV = IV;
+		prehash = Misc.cleanXOR(IV, key);
+		cfg = true;
+		blockNo = 0;
+		buffer = new byte[blockSize];
+		bufferIndex = 0;
 	}
-
-	public byte[] calculateSHEBlock(byte[] text){
-		byte[] otp = null;
-		if(configured){
-			otp = Arrays.copyOf(IV, blockSize);
-			otp[blockNo%blockSize] += blockNo+1;
-			Misc.XORintoA(otp, key);
-			otp = Hash.getSHA256(otp);
-			Misc.XORintoA(otp, text);
-		}else
-			throw new RuntimeException("Instance not configured, call configure(byte[], byte[])");
-		return otp;
+	
+	private byte[] cryptBlock(){
+		//byte[] iv = Arrays.copyOf(IV, IV.length);// + BLOCKSIZE);
+		//System.arraycopy(IV, 0, iv, 0, BLOCKSIZE);
+		//iv[blockNo % blockSize] += blockNo + 1;
+		
+		byte[] ret;
+		int i = blockNo % blockSize;
+		int inc = (blockNo/blockSize) + 1;
+		prehash[i] ^= key[i];					// expose IV[i] in prehash
+		prehash[i] += inc;	// apply ctr
+		prehash[i] ^= key[i];					// cover IV[i] in prehash with key[i]
+		ret = Misc.XORintoA(mD.digest(prehash), buffer);
+		prehash[i] ^= key[i];					// expose IV[i[ in prehash
+		prehash[i] -= inc;	// remove ctr
+		prehash[i] ^= key[i];					// cover IV[i[ in prehash with key[i]
+		
+		
+		//iv[blockNo % blockSize] += (blockNo/blockSize) + 1; // this way allows more blocks
+		//System.out.println(Misc.bytesToHex(iv));
+		//iv = Misc.cleanXOR(iv, key); //this line runs much faster than the following two lines because the following make a larger IV which takes longer to digest
+		//iv = Arrays.copyOf(iv, blockSize + iv.length);
+		//System.arraycopy(key, 0, iv, blockSize, blockSize);
+		return ret;//Misc.cleanXOR(buffer, mD.digest(iv));
 	}
-
+	
+	public boolean isConfigured(){
+		return cfg;
+	}
+	
+//	public byte[] updateWithInterrupts(byte[] input){
+//		if(!cfg){
+//			throw new RuntimeException("Cipher not configured.");
+//		}
+//		int numBlocks = (int) Math.floor((input.length + bufferIndex)/BLOCKSIZE);
+//		byte[] out = new byte[numBlocks*BLOCKSIZE];
+//		
+//		for(int i=0; i < input.length; i++){
+//			try{
+//				buffer[bufferIndex++] = input[i];
+//			}catch(IndexOutOfBoundsException e){
+//				bufferIndex = 0;
+//				i--;
+//				//System.out.println(Misc.bytesToHex(buffer));
+//				System.arraycopy(cryptBlock(), 0, out, blockNo*BLOCKSIZE, BLOCKSIZE);
+//				blockNo++;
+//				buffer = new byte[BLOCKSIZE];
+//			}
+//		}
+//		if(bufferIndex == 32){
+//			bufferIndex = 0;
+//			System.arraycopy(cryptBlock(), 0, out, blockNo*BLOCKSIZE, BLOCKSIZE);
+//			buffer = new byte[BLOCKSIZE];
+//		}
+//		//System.out.println(bufferIndex);
+//		//System.out.println(Misc.bytesToHex(out));
+//		return out;
+//	}
+	
 	/**
-	 * note: resets instance to the condition it was in after configure was called.
-	 * @param text
-	 * @return the last block of calculated text
+	 * Continues a multiple-part encryption or decryption operation (depending on how this cipher was initialized), processing another data part.
+	 * The bytes in the input buffer are processed, and the result is stored in a new buffer.
+	 *
+	 * If input has a length of zero, this method returns null.
+	 * @param input
+	 * @return
 	 */
-	public byte[] calculateFinalSHEBlock(byte[] text){
-		byte[] otp = null;
-		if(configured){
-			int length = text.length;
-			otp = Arrays.copyOf(IV, blockSize);
-			otp[blockNo%blockSize] += blockNo+1;
-			Misc.XORintoA(otp, key);
-			otp = Hash.getSHA256(otp);
-
-			//pad text
-			if(length != blockSize){
-				text = Arrays.copyOf(text, blockSize);
-				text[length] = (byte) 0xFF;
-			}
-
-			Misc.XORintoA(otp, text);
-
+	public byte[] update(byte[] input){
+		if(!cfg){
+			throw new RuntimeException("Cipher not configured.");//TODO
+		}
+		if(input.length == 0)
+			return new byte[]{};//null;
+		if(bufferIndex != 0){
+			byte[] in2 = Arrays.copyOf(buffer, input.length + bufferIndex);//new byte[input.length + bufferIndex];
+			//System.out.println(Misc.bytesToHex(in2));
+			//System.arraycopy(buffer, 0, in2, 0, bufferIndex);
+			System.arraycopy(input, 0, in2, bufferIndex, input.length);
+			input = in2;
+		}
+		
+		int numBlocks = (int) Math.floor(input.length/blockSize);
+		//System.out.println(numBlocks);
+		byte[] out = new byte[blockSize * numBlocks];
+		for(int i = 0; i < numBlocks; i++){
+			//System.out.println("i:"+i+" block:" + blockNo);
+			System.arraycopy(input, blockSize*i, buffer, 0, blockSize);
+			System.arraycopy(cryptBlock(), 0, out, i * blockSize, blockSize);
+			blockNo++;
+		}
+		buffer = new byte[blockSize];
+		if(input.length % blockSize == 0){
+			
+			bufferIndex = 0;
+		}else{
+			//buffer = new byte[BLOCKSIZE];
+			System.arraycopy(input, numBlocks*blockSize, buffer, 0, input.length - numBlocks*blockSize);
+			bufferIndex = input.length - numBlocks*blockSize;
+		}
+		//System.out.println(Misc.bytesToHex(out));
+		return out;
+	}
+//	public byte[] doFinalWithInterrupts(byte[] input){
+//		byte[] main = updateWithInterrupts(input);
+//		byte[] out;
+//		//if buffer isn't empty add a padding indicator to the end of data
+//		if(bufferIndex != 0){
+//			
+//			buffer[bufferIndex] = 0x69;
+//			bufferIndex++;
+//			//System.out.println(Misc.bytesToHex(buffer));
+//			buffer = cryptBlock();
+//			//add buffer to end of main
+//			out = new byte[main.length + buffer.length];
+//			System.arraycopy(main, 0, out, 0, main.length);
+//			System.arraycopy(buffer, 0, out, main.length, buffer.length);
+//		}else{
+//			//remove padding
+//			int endIndex = main.length-1 ;
+//			while(main[endIndex] == 0 || main[endIndex] == 0x69){
+//				endIndex --;
+//				if(main[endIndex] == 0x69){
+//					endIndex--;
+//					break;
+//				}
+//			}
+//			//System.out.println("endindex " + endIndex);
+//			out = new byte[endIndex + 1];
+//			System.arraycopy(main, 0, out, 0, endIndex+1);
+//		}
+//				
+//		blockNo = 0;
+//		IV = null;
+//		key = null;
+//		cfg = false;
+//		bufferIndex = 0;
+//		
+//		return out;
+//	}
+	/**
+	 * Encrypts or decrypts data in a single-part operation, or finishes a multiple-part operation.
+	 * The bytes in the input buffer, and any input bytes that may have been buffered during a previous update operation, are processed, with padding (if requested) being applied. 
+	 *
+	 * Upon finishing, this method resets this cipher object to the state it was in before initialized via a call to init. That is, the object is reset and needs to be re-initialized before it is available to encrypt or decrypt more data.
+	 * @return the new buffer with the result
+	 */
+	public byte[] doFinal(){
+		return doFinal(new byte[]{});
+	}
+	
+	/**
+	 * Encrypts or decrypts data in a single-part operation, or finishes a multiple-part operation.
+	 * The bytes in the input buffer, and any input bytes that may have been buffered during a previous update operation, are processed, with padding (if requested) being applied. 
+	 *
+	 * Upon finishing, this method resets this cipher object to the state it was in before initialized via a call to init. That is, the object is reset and needs to be re-initialized before it is available to encrypt or decrypt more data.
+	 * @param input the input buffer
+	 * @return the new buffer with the result
+	 */
+	public byte[] doFinal(byte[] input){
+		byte[] main = update(input);
+		byte[] out;
+		//if buffer isn't empty add a padding indicator to the end of data
+		if(bufferIndex != 0){
+			
+			buffer[bufferIndex] = 0x69;
+			bufferIndex++;
+			//System.out.println(Misc.bytesToHex(buffer));
+			buffer = cryptBlock();
+			//add buffer to end of main
+			out = new byte[main.length + buffer.length];
+			System.arraycopy(main, 0, out, 0, main.length);
+			System.arraycopy(buffer, 0, out, main.length, buffer.length);
+		}else{
 			//remove padding
-			int endIndex = otp.length -1 ;
-			if(otp[endIndex] == (byte) 0xFF){
-				endIndex--;
-			}else{
-				while(otp[endIndex] == 0){
-					endIndex --;
-					if(otp[endIndex] ==(byte) 0xFF){
-						endIndex--;
-						break;
-					}
+			int endIndex = main.length-1 ;
+			while(main[endIndex] == 0 || main[endIndex] == 0x69){
+				endIndex --;
+				if(endIndex != 0 && main[endIndex] == 0x69){ //TODO removing padding needs fixing
+					endIndex--;
+					break;
 				}
 			}
-			
-			if(endIndex+1 != otp.length){
-				return Arrays.copyOf(otp, endIndex+1);
-			}
-		}else
-			throw new RuntimeException("Instance not configured, call configure(byte[], byte[])");
+			//System.out.println("endindex " + endIndex);
+			out = new byte[endIndex + 1];
+			System.arraycopy(main, 0, out, 0, endIndex+1);
+		}
+				
 		blockNo = 0;
-		return otp;
+		IV = null;
+		key = null;
+		cfg = false;
+		bufferIndex = 0;
+		
+		return out;
 	}
-
-
-	/**
-	 * Calculate a single block with SimpleHashEncryption (see doSHE for details)
-	 * @param block The block number, text and initialization vector for the block that is to be calculated
-	 * @param key a 128 bit or stronger key
-	 * @return an array containing the calculated block
-	 */
-	public static byte[] doSHEBlock(Block block, byte[] key){
-		//make sure key is at least 128 bits.
-		if(key.length < 16)
-			throw new RuntimeException("Key too short");
-		//make sure iv is at least 256 bits.
-		if(block.getIV().length < blockSize)
-			throw new RuntimeException("IV too short.");
-		//make sure text block is exactly 256 bits.
-		if(block.getText().length != blockSize)
-			throw new RuntimeException("Block is not 256 bits.");
-
-		//create a copy of the iv so we can increment it
-		byte[] iv = new byte [blockSize];
-		System.arraycopy(block.getIV(), 0, iv, 0, iv.length);
-
-		//increment the iv based on the block number
-		iv[block.getBlockNo()%blockSize] += block.getBlockNo()+1;
-
-		return Misc.XOR(block.getText(), //xor the below with the text
-				Hash.getSHA256( //hash the key salted iv
-						Misc.XOR(key, iv))); // salt the iv with the key
-	}
-
-
-
-	/*
-	 * a version of the block calculation that modifies text and has no return, more memory efficient.
-	 * however key, text and iv all need to be 256 bits
-	 */
-	public static void doSHEBlock(byte[] text, int blockNo, byte[] IV, byte[] key){
-		if(text.length != blockSize || IV.length != blockSize || key.length !=blockSize)
-			throw new RuntimeException("invalid input length.");
-		byte[] otp = Arrays.copyOf(IV, IV.length);
-		otp[blockNo%blockSize] += blockNo+1;
-		Misc.XORintoA(otp, key);
-		otp = Hash.getSHA256(otp);
-		Misc.XORintoA(text, otp);
-	}
-	/**
-	 * Calculate a single block with SimpleHashEncryption (see doSHE for details). 
-	 * Use doSHEBlock if the parameters need to be checked for size, null, etc.
-	 * @param block The block number, text and initialization vector for the block that is to be calculated
-	 * @param key a 128 bit or stronger key
-	 * @return an array containing the calculated block
-	 */
-	private static byte[] getSHEBlock(Block block, byte[] key){
-		//create a copy of the iv so we can increment it
-		byte[] iv = new byte [blockSize];
-		System.arraycopy(block.getIV(), 0, iv, 0, iv.length);
-
-		//increment the iv based on the block number
-		iv[block.getBlockNo()%blockSize] += block.getBlockNo()+1;
-
-		return Misc.XOR(block.getText(), //xor the below with the text
-				Hash.getSHA256( //hash the key salted iv
-						Misc.XOR(key, iv))); // salt the iv with the key
-	}
-
-	/**
-	 * Simple/Secure Hash Encryption encryption/decryption method which uses the 
-	 * identical nature of the encryption and decryption algorithms in the 
-	 * counter (CTR) mode of operation for block ciphers to use a one way hash 
-	 * function instead of a typical encryption algorithm. SHE uses SHA256 with 
-	 * a 256bit block size, and a key of at least 126 bits and a generated IV of 
-	 * 256 bits. This method operates as a block cipher, 
-	 * @param input The text to calculate, must be less that 2GB or 2^32 bytes, due to array restrictions in java.
-	 * @param key The key to use for encryption/decryption, must be at least 128 bits.
-	 * @return An EncryptionResult containing the iv and calculated text.
-	 */
-	public static  EncryptionResult doSHE(byte[] input, byte[] key){
-		return doSHE(input, key, null);
-	}
-	/**
-	 * Simple/Secure Hash Encryption encryption/decryption method which uses the 
-	 * identical nature of the encryption and decryption algorithms in the 
-	 * counter (CTR) mode of operation for block ciphers to use a one way hash 
-	 * function instead of a typical encryption algorithm. SHE uses SHA256 with 
-	 * a 256bit block size, and a key of at least 126 bits and an IV of at least 
-	 * 256 bits. This method operates as a block cipher, 
-	 * @param input The text to calculate, must be less that 2GB or 2^32 bytes, due to array restrictions in java.
-	 * @param key The key to use for encryption/decryption, must be at least 128 bits.
-	 * @param IV The initializaiton vector to use, must be at least 256 bits.
-	 * @return An EncryptionResult containing the iv and calculated text.
-	 */
-	public static  EncryptionResult doSHE(byte[] input, byte[] key, byte[] IV){
-		//List inputList;
-		//pad input length to a multiple of 32
-		//input[0] = 99;
-		if(input.length%blockSize != 0){
-			int length = input.length;
-			//Misc.PrintMemInfo(Runtime.getRuntime());
-			//input = Arrays.copyOf(input, (input.length/32+1)*32);
-			byte[] temp = null; 
-			//System.out.println((input.length/blockSize+1)*blockSize / (1024*1024));
-			temp=new byte[(input.length/blockSize+1)*blockSize];
-			System.arraycopy(input, 0, temp, 0, input.length);
-			input = temp;
-			temp = null;
-			input[length] = 69;
-			//Misc.PrintMemInfo(Runtime.getRuntime());//System.gc();
-		}
-		int numBlocks = input.length/blockSize;
-
-		//make sure key is at least 128 bits
-		if(key.length < 16)
-			throw new RuntimeException("Key too short");
-
-		// if initialization vecor is null, get a new CSRN for it
-		if(IV == null){
-			SecureRandom random = new SecureRandom();
-			IV = new byte[blockSize];
-			random.nextBytes(IV);
-		}else{ //if iv is not null make sure it is long enough
-			if(IV.length < blockSize)
-				throw new RuntimeException("IV too short."); //throw an error
-		}
-		byte[] tmp = new byte[blockSize];
-		Block block = new Block(0, null, IV);
-
-		//loop through each block
-		for(int i = 0; i < numBlocks; i++){
-			//copy block into temp array
-			System.arraycopy(input, i*blockSize, tmp, 0, blockSize);
-			//copy encrypted block back into input
-			block.setBlockNo(i);
-			block.setText(tmp);
-			System.arraycopy(getSHEBlock(block, key), 0, input, i*blockSize, blockSize);
-
-		}
-		tmp = null;
-		block = null;
-		System.gc();
-		//trim any null bytes from end of array
-		int endIndex = input.length -1 ;
-		while(input[endIndex] == 0){
-			endIndex --;
-			if(input[endIndex] == 69){
-				endIndex--;
-				break;
-			}
-
-		}
-		//byte out[] = new byte[endIndex+1];
-		//System.arraycopy(input, 0, out, 0, endIndex+1);	
-		if(endIndex+1 != input.length){
-			return new EncryptionResult(Arrays.copyOf(input, endIndex+1), IV, null);
-		}else
-			return new EncryptionResult(input, IV, null);
-	}
-
-
-	public static class Block{
-		public int blockNo;
-		public byte[] text;
-		public byte[] IV;
+	
+	public static class EncryptedOutputStream extends FilterOutputStream{
+		private HistoricSHE cipher;
 		/**
-		 * @param blockNo
-		 * @param text
-		 * @param iV
+		 * If true, when this stream is closed using its close() method, any 
+		 * unprocessed data will be padded and then encrypted.
+		 * If false, when this stream is closed any unprocessed data will be discarded.
 		 */
-		public Block(int blockNo, byte[] text, byte[] iV) {
-			super();
-			this.blockNo = blockNo;
-			this.text = text;
-			IV = iV;
+		public boolean padOnClose;
+		
+		/**
+		 * Constructs an EncryptedOutputStream from an OutputStream and a Cipher. 
+		 * Note: if the specified output stream or cipher is null, a NullPointerException may be thrown later when they are used.
+		 * @param out the OutputStream object
+		 * @param cipher an initialized Cipher object
+		 */
+		public EncryptedOutputStream(OutputStream out, HistoricSHE cipher) {
+			super(out);
+			if(!cipher.isConfigured())
+				throw new RuntimeException("Cipher not configured.");
+			padOnClose = false;
+			this.cipher = cipher;
 		}
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
+		/**
+		 * Writes the specified byte to this output stream.
 		 */
 		@Override
-		public String toString() {
-			return "SHEBlock [blockNo=" + blockNo + ", text="
-					+ Arrays.toString(text) + ", IV=" + Arrays.toString(IV)
-					+ "]";
+		public void write(int b) throws IOException{
+			out.write(cipher.update(new byte[]{(byte) b}));
+		}
+		
+		
+		@Override
+		public void write(byte[] b) throws IOException{
+			//byte[] debug;// = new byte[b.length];
+			//debug = ;
+			//System.out.print(Misc.bytesToHex(debug));
+			out.write(cipher.update(b));
+			//return debug;
+		}
+		
+		public void write(byte[] b, int off, int len) throws IOException{
+			byte[] todo = new byte[len];
+			System.arraycopy(b, off, todo, 0, len);
+			write(todo);
+		}
+		
+		//@Override
+	//	public void flush() throws IOException{
+			//write(cipher.doFinal());
+			//out.flush();
+		//}
+		@Override
+		public void close() throws IOException{
+			if(padOnClose)
+				out.write(cipher.doFinal());
+			out.close();
 		}
 		/**
-		 * @return the text
+		 * 
+		 * @return the underlying SHE cipher for this Stream
+		 */
+		public HistoricSHE getCipher(){
+			return cipher;
+		}
+		
+	}
+	
+	public static class EncryptedInputStream extends FilterInputStream{
+		private HistoricSHE cipher;
+		private ByteQueue buffer;
+		
+		public EncryptedInputStream(InputStream in, HistoricSHE cipher) {
+			super(in);
+			if(!cipher.isConfigured())
+				throw new RuntimeException("Cipher not configured.");
+			this.cipher = cipher;
+			buffer = new ByteQueue(cipher.blockSize*2);
+			buffer.setResizable(true);
+		}
+		
+		private void bufferBlock() throws IOException{
+			byte[] plainText = new byte[cipher.blockSize];
+			in.read(plainText);
+			buffer.enQueue(cipher.update(plainText));
+		}
+		
+		private void bufferBytes(int size) throws IOException{
+			while(buffer.filled() < size){
+				bufferBlock();
+				}
+		}
+		
+		public int read() throws IOException{
+			try{
+				return buffer.deQueue(1)[0];
+			}catch(BufferUnderflowException e){
+				bufferBlock();
+				return read();
+			}
+		}
+		
+		public int read(byte[] b) throws IOException{
+			return read(b, 0, b.length);
+		}
+		
+		public int read(byte[]b, int off, int len) throws IOException{
+			bufferBytes(len-off);
+			buffer.deQueue(b, off, len);
+			return len-off;
+		}
+		
+	}
+	
+	public static class EncryptionResult implements Serializable{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6451163680434801851L;
+		private byte[] text;
+		private byte[] iv;
+		/**
+		 * @param text
+		 * @param iv
+		 */
+		public EncryptionResult(byte[] iv, byte[] text) {
+			//super();
+			this.text = text;
+			this.iv = iv;
+		}
+		
+		public EncryptionResult(byte[] simpleSerial){
+			int ivLength = simpleSerial[0];
+			int outputLength = simpleSerial.length - ivLength -1;
+			iv = new byte[ivLength];
+			text = new byte[outputLength];
+			System.arraycopy(simpleSerial, 1, iv, 0, ivLength);
+			System.arraycopy(simpleSerial, ivLength + 1, text, 0, outputLength);
+		}
+		
+		/**
+		 * needs testing
+		 * @return the encryption result as a byte array in the form (ivLength|iv|ciphertext) 
+		 */
+		public byte[] simpleSerial(){
+			byte[] out = new byte[text.length + iv.length + 1];
+			out[0] = (byte) iv.length;
+			System.arraycopy(iv, 0, out, 1, iv.length);
+			System.arraycopy(text, 0, out, iv.length + 1, text.length);
+			return out;
+		}
+		
+		/**
+		 * @return the cipherText
 		 */
 		public byte[] getText() {
 			return text;
 		}
+		
 		/**
-		 * @param text the text to set
+		 * @return the iv
 		 */
-		public void setText(byte[] text) {
-			this.text = text;
+		public byte[] getIv() {
+			return iv;
 		}
-		/**
-		 * @return the iV
-		 */
-		public byte[] getIV() {
-			return IV;
+		
+		@Override
+		public String toString() {
+			return "EncryptionResult [iv="
+					+ Misc.bytesToHex(iv) + "[text=" + Misc.bytesToHex(text)+ "]\n" + Misc.bytesToHex(simpleSerial());
 		}
-		/**
-		 * @param iV the iV to set
-		 */
-		public void setIV(byte[] iV) {
-			IV = iV;
+	}
+	public class Algorithm{
+		public static final String SHA1 = "SHA-1";
+		public static final String SHA256 = "SHA-256";
+		public static final String SHA384 = "SHA-384";
+		public static final String SHA512 = "SHA-512";
+		
+		private String algo;
+		public Algorithm(String algorithm){
+			if(!algorithm.equals(SHA1) || !algorithm.equals(SHA256) || 
+					!algorithm.equals(SHA384) || !algorithm.equals(SHA512))
+				throw new RuntimeException("Invalid algorithm " + algorithm);
+			algo = algorithm;
 		}
-		/**
-		 * @return the blockNo
-		 */
-		public int getBlockNo() {
-			return blockNo;
+		public String getAlgorithm() {
+			return algo;
 		}
-		/**
-		 * @param blockNo the blockNo to set
-		 */
-		public void setBlockNo(int blockNo) {
-			this.blockNo = blockNo;
+		public void setAlgorithm(String algo) {
+			if(!algo.equals(SHA1) || !algo.equals(SHA256) || 
+					!algo.equals(SHA384) || !algo.equals(SHA512))
+				throw new RuntimeException("Invalid algorithm " + algo);
+			this.algo = algo;
 		}
-
+		
 	}
 }
