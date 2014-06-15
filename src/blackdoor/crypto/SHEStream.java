@@ -24,14 +24,22 @@ public class SHEStream {
 	private MessageDigest mD;
 	private byte[] prehash;
 	
-	public SHEStream(){
-		blockSize = 64;
-		//keySize = 32;
+	public static SHEStream getInstance(){
 		try {
-			mD = MessageDigest.getInstance("SHA-512");
+			return new SHEStream("SHA-512");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	public static SHEStream getInstance(String algorithm) throws NoSuchAlgorithmException{
+		return new SHEStream(algorithm);
+	}
+	
+	protected SHEStream(String algorithm) throws NoSuchAlgorithmException{
+		mD = MessageDigest.getInstance(algorithm);
+		blockSize = mD.getDigestLength();
 	}
 	
 	/**
