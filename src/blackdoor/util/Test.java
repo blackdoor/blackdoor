@@ -49,6 +49,7 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.Hash;
 import blackdoor.crypto.SHE;
@@ -67,7 +68,7 @@ public class Test {
 	 * @throws NoSuchPaddingException 
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchPaddingException {
+	public static void main(String[] args) throws Exception {
 		//byte[] b = new byte[]{23, 57, 23, 0};
 		//byte[] a = new byte[]{(byte) 0x1111, 12, 3,4};
 		//System.out.println(a);
@@ -80,8 +81,9 @@ public class Test {
 		//System.out.println(InetAddress.getLocalHost().getAddress().length);
 		//fileHashTest();
 		//ticketTest();
-		cryptoTest();
+		//cryptoTest();
 		SHEStreamTest();
+		NISTBench();
 		//cryptoTest();
 		//bufferTest();
 		//qTest();
@@ -125,25 +127,97 @@ public class Test {
 		b.flip();
 		System.out.println(b);
 	}
+	static byte[] key512 = new byte[64];
+	static byte[] key256 = new byte[32];
+	static byte[] key128 = new byte[16];
+	static byte[] plainText = new byte[1024];
+	static void NISTBench() throws Exception{
+		
+		final int NUM_TESTS = 128;
+		final int NUM_ITERATIONS = 2048;
+		StopWatch timer = new StopWatch(false);
+		Double[] results = new Double[NUM_TESTS];
+		
+		for(int t = 0; t < NUM_TESTS; t++){
+			/*	Setup	*/
+			Object obj = NISTSetup();
+			timer.mark();
+			for(int i = 0; i < NUM_ITERATIONS; i++){
+				/*	Test	*/
+				NISTOperation(obj);//stream.crypt(plainText);
+			}
+			results[t] = timer.checkS();
+		}
+		double time = Statistics.mean(Statistics.discardOutliers(results, 3));
+		System.out.println((plainText.length/1024) * NUM_ITERATIONS/1024/time + " M bytes/sec");
+	}
 	
-	static void SHEStreamTest() throws NoSuchAlgorithmException, NoSuchPaddingException{
+	static Object NISTSetup() throws Exception{
+		/*######################################################################
+		 *####	SHEStream	####################################################
+		 *######################################################################*/
+		SHEStream stream = new SHEStream();
+		stream.init(key512, key512);
+		return stream;
+		/*######################################################################*/
+		
+		/*######################################################################
+		 *####	AES			####################################################
+		 *######################################################################*
+		Cipher cipher = Cipher.getInstance("AES/CTR/PKCS5Padding");
+        final SecretKeySpec secretKey = new SecretKeySpec(key256, "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		return cipher;
+		/*######################################################################*/
+		
+	}
+	
+	static void NISTOperation(Object obj)throws Exception{
+		/*######################################################################
+		 *####	SHEStream	####################################################
+		 *######################################################################*/
+		SHEStream stream = (SHEStream) obj;
+		stream.crypt(plainText);
+		/*######################################################################*/
+		
+		/*######################################################################
+		 *####	AES			####################################################
+		 *######################################################################*
+		((Cipher) obj).doFinal(plainText);
+		/*######################################################################*/
+	}
+	
+	static void SHEStreamTest() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException{
 		SHEStream stream = new SHEStream();
 		byte[] IV = new byte[32];
-
+		byte[] thing = new byte[16];
 		byte[] plainText = new byte[1000];
 		byte[] plainText2 = new byte[1048576];
 		byte[] key = new byte[32];
 		for(int i = 0; i < plainText.length; i++){
 			plainText[i] = (byte) ((i/32) +1);
 		}
-		
-				
-		stream.init(IV, key);
 		StopWatch timer = new StopWatch(true);
+		
+		 Cipher cipher = Cipher.getInstance("AES/CTR/PKCS5Padding");
+         final SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		timer.mark();
+		cipher.doFinal(plainText2);
+		System.out.println("AES " + timer.checkMS());
+		
+		stream.init(thing, thing);
+		stream.blockSize = 16;
 		timer.mark();
 		stream.crypt(plainText2);
-		System.out.println(timer.checkS());
+		System.out.println("128 " + timer.checkMS());
+		
+		stream.blockSize = 32;
 		stream.init(IV, key);
+		timer.mark();
+		stream.crypt(plainText2);
+		System.out.println("256 " + timer.checkMS());
+
 		//byte result[] = stream.crypt(ciphertext);
 		
 
@@ -152,8 +226,11 @@ public class Test {
 		timer.mark();
 		//Arrays.copyOf(plainText2, plainText2.length);
 		md.digest(plainText2);
-		System.out.println(timer.checkS());
-		
+		System.out.println(timer.checkMS());
+		timer.mark();
+		//Arrays.copyOf(plainText2, plainText2.length);
+		md.digest(thing);
+		System.out.println(timer.checkMS());
 	}
 	
 	public static void cryptoStreamTest(){

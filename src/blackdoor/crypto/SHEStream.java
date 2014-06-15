@@ -14,7 +14,7 @@ import blackdoor.util.Misc;
  *
  */
 public class SHEStream {
-	private int blockSize;
+	protected int blockSize;
 	private int blockNo = 0;
 	private boolean cfg = false;
 	private byte[] key;
@@ -23,9 +23,9 @@ public class SHEStream {
 	private byte[] prehash;
 	
 	public SHEStream(){
-		blockSize = 32;
+		blockSize = 64;
 		try {
-			mD = MessageDigest.getInstance("SHA-256");
+			mD = MessageDigest.getInstance("SHA-512");
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -48,6 +48,8 @@ public class SHEStream {
 		while(buffer.filled() < text.length){
 			bufferKeystream();
 		}
+		//System.out.println(buffer);
+		//System.out.println(text.length);
 		return Misc.XORintoA(buffer.deQueue(text.length), text);
 	}
 	

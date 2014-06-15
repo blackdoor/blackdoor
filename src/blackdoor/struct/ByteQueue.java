@@ -152,15 +152,23 @@ public class ByteQueue {
 	 * @param length - the number of bytes from offset in dest that bytes will be copied into.
 	 */
 	public void deQueue(byte[] dest, int offset, int length){
+		//System.out.println(this);
+		//System.out.println("len" +length);
 		if(length > filled()){
 			throw new BufferUnderflowException();
 		}
-		if(length > filled()){
-			System.arraycopy(array, start, dest, offset, capacity() - start);
-			System.arraycopy(array, 0, dest, offset + capacity() - start , length - capacity() - start);
+		//System.out.println(filled());
+		if(start > end && !(length <= (capacity() - start))){//length > filled()){
+			System.arraycopy(array, start, dest, offset, (capacity() - start));
+		//	System.out.println(""+(offset + capacity() - start)  +' '+ (length - (capacity() - start)));
+			System.arraycopy(array, 0, dest, offset + capacity() - start , length - (capacity() - start));
 		}
-		else
+		else{
+			//System.out.println(Misc.bytesToHex(array));
+			//System.out.println("offset length " + offset + ' ' + length);
+			//System.out.println("start end " + start + ' ' + end);
 			System.arraycopy(array, start, dest, offset, length);
+		}
 		start = (start + length) % array.length;
 	}
 	
