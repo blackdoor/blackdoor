@@ -82,7 +82,7 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-		SHEStreamTest();
+		//SHEStreamTest();
 		NISTBench();
 		//cryptoTest();
 		//bufferTest();
@@ -157,7 +157,7 @@ public class Test {
 		 *####	SHEStream	####################################################
 		 *######################################################################*/
 		SHEStream stream = new SHEStream();
-		stream.init(key512, key512);
+		stream.init(key128);
 		return stream;
 		/*######################################################################*/
 		
