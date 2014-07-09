@@ -32,10 +32,10 @@ public class CommandLineParser {
 	
 	/**
 	 * Get the parsed and checked command line arguments for this parser
-	 * @param args - The command line arguments to add. These can be passed straight from the parameter of main(String[])
-	 * @return A list of strings, the first([0]) element in each list
-	 * 		is the command line option, if the second([1]) element exists it is the 
-	 * 		parameter for that option.
+	 * @param args - The command line arguments to add. These can be passed straight from the parameter of main(String[])<p>
+	 * @return A list of strings, the first([0]) element in each list<p>
+	 * 		is the command line option, if the second([1]) element exists it is the
+	 * 		parameter for that option.<p>
 	 * 		Returns null if parseArgs(String[]) has not been called.
 	 */
 	public List<List<String>> getParsedArgs(String[] args) {
@@ -122,15 +122,15 @@ public class CommandLineParser {
 
 	/**
 	 * adds options for this command line parser
-	 * @param optionList a list of Strings of options in a comma separated format
-	 * 		single char options should be prepended with a single "-"
-	 * 		string options should be prepended with "--"
-	 * 		non-option parameters should add a "?" to the string. non-option parameters should define the string (long/--) form option.
-	 * 			ie. parameters that would not have an explicit option before them
-	 * 			eg. cp source.txt dest.txt
-	 * 		to add helptext for this option, add -h followed by the help text
-	 * 		if there MUST be a parameter after this command line option then add a "+" to the string
-	 * 		alternatively if there MAY be a parameter after this command line option then add a "*" to the string
+	 * @param optionList a list of Strings of options in a comma separated format<p>
+	 * 		single char options should be prepended with a single "-"<p>
+	 * 		string options should be prepended with "--"<p>
+	 * 		non-option parameters should add a "?" to the string. non-option parameters should define the string (long/--) form option.<p>
+	 * 		    ie. parameters that would not have an explicit option before them<p>
+	 * 		    eg. cp source.txt dest.txt<p>
+	 * 		to add helptext for this option, add -h followed by the help text<p>
+	 * 		if there MUST be a parameter after this command line option then add a "+" to the string. 
+	 * 		alternatively if there MAY be a parameter after this command line option then add a "*" to the string<p>
 	 * 		eg. "-r.--readonly" or "--file,-f,+" or "*, -f, --flag, -h this is helptext" or "--source, ?"
 	 */
 	public void addOptions(String [] optionList){
