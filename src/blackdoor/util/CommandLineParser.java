@@ -131,7 +131,7 @@ public class CommandLineParser {
 	 * 		to add helptext for this option, add -h followed by the help text
 	 * 		if there MUST be a parameter after this command line option then add a "+" to the string
 	 * 		alternatively if there MAY be a parameter after this command line option then add a "*" to the string
-	 * 		eg. "-r.--readonly" or "--file,-f,+" or "*, -f, --flag"
+	 * 		eg. "-r.--readonly" or "--file,-f,+" or "*, -f, --flag, -h this is helptext" or "--source, ?"
 	 */
 	public void addOptions(String [] optionList){
 		for(String option : optionList){
