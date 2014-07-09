@@ -51,6 +51,7 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Hash;
@@ -58,7 +59,6 @@ import blackdoor.crypto.HistoricSHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.crypto.HistoricSHE.EncryptedInputStream;
-import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
 
@@ -71,6 +71,7 @@ public class Test {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public static void main(String[] args) throws Exception {
+		clParserTest();
 		//byte[] b = new byte[]{23, 57, 23, 0};
 		//byte[] a = new byte[]{(byte) 0x1111, 12, 3,4};
 		//System.out.println(a);
@@ -84,13 +85,25 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-		SHEStreamTest();
-		NISTBench();
+		//SHEStreamTest();
+		//NISTBench();
 		//cryptoTest();
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
 	}
+	
+	public static void clParserTest(){
+		String [] args = new String[]{"biddy", "-r", "--file", "thing.dat", "tea", "-z", "zparam"};
+		CommandLineParser parse = new CommandLineParser();
+		parse.addOptions(new String[]{"-r,--readOnly, -h set file to read only", "-f, --file,  + ", "-z,--zz,*", "--biddyparam,?", "?, --ohtea"});
+		//parse.parseArgs(args);
+		parse.setUsageHint("parse stuff");
+		
+		System.out.println(parse.getParsedArgs(args));
+		System.out.println(parse.getHelpText());
+	}
+	
 	public static void qTest(){
 		ByteQueue.main();
 	}
