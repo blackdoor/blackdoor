@@ -1,6 +1,6 @@
-#################
-## Eclipse
-#################
+
+*.sublime-project
+*.sublime-workspace
 
 *.pydevproject
 .project
@@ -161,3 +161,4 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+/bin1/
