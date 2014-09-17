@@ -28,29 +28,6 @@ import javax.xml.bind.DatatypeConverter;
 
 //import org.apache.commons.io.FileUtils;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Hash;
@@ -58,7 +35,7 @@ import blackdoor.crypto.HistoricSHE;
 import blackdoor.crypto.Crypto.EncryptionResult;
 import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.crypto.HistoricSHE.EncryptedInputStream;
-import blackdoor.crypto.SHEStream;
+//import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
 import blackdoor.util.Watch.StopWatch;
 
@@ -84,13 +61,39 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-		SHEStreamTest();
-		NISTBench();
+
+		DBPTest();
+		
+		//SHEStreamTest();
+		//NISTBench();
 		//cryptoTest();
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
 	}
+	
+	public static void DBPTest(){
+		DBP.DEBUG = true;
+		DBP.DEMO = true;
+		DBP.DEV = true;
+		DBP.ERROR = true;
+		DBP.WARNING = true;
+		DBP.LOG_ALL = true;
+		DBP.toggleDebug();
+		DBP.printdebugln("test line" + 5);
+		DBP.printdemoln("demo");
+		DBP.printdevln("dev");
+		DBP.printerrorln("err");
+		DBP.ERROR_AS_SYSTEM_ERROR = true;
+		DBP.printerrorln("err as sys err");
+		DBP.printwarningln("warning");
+		DBP.printlogln("log");
+	}
+	
+	public static void castTest(Object x){
+		System.out.println(x);
+	}
+	
 	public static void qTest(){
 		ByteQueue.main();
 	}

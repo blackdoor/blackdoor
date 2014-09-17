@@ -1,6 +1,6 @@
-#################
-## Eclipse
-#################
+
+*.sublime-project
+*.sublime-workspace
 
 *.pydevproject
 .project
