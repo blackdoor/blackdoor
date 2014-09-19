@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+
 import blackdoor.util.Misc;
 
 /**
@@ -90,10 +91,11 @@ public class Hash {
 		//return output;
 	}
 
+	@Deprecated
 	public static byte[] getSHA1(byte[] input){
 		return getHash("SHA-1", input);
 	}
-
+	@Deprecated
 	public static String getSHA1String(byte[] input){
 		return Misc.bytesToHex(getSHA1(input));
 	}
@@ -104,7 +106,30 @@ public class Hash {
 	 * @return 32 bytes that represent the SHA256 hash of input;
 	 */
 	public static byte[] getSHA256(byte[] input){
-		return getHash("SHA-256", input);
+		return getSHA256(input, false);
+	}
+	
+	private static MessageDigest SHA256_INSTANCE = null;
+	
+	/**
+	 * Get the SHA256 Hash of input
+	 * @param input - the bytes to hash
+	 * @param asSingleton if true use a singleton MessageDigest instance, else create and destroy a MD instance just for this call.
+	 * @return 32 bytes that represent the SHA256 hash of input;
+	 */
+	public static byte[] getSHA256(byte[] input, boolean asSingleton){
+		if(SHA256_INSTANCE == null){
+			if(asSingleton){
+				try {
+					SHA256_INSTANCE = MessageDigest.getInstance("SHA-256");
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+			}else{
+				return getHash("SHA-256", input);
+			}		
+		}
+		return SHA256_INSTANCE.digest(input);		
 	}
 	
 	public static byte[] getStretchedSHA256(byte[] input, byte[] salt, int length){
@@ -127,6 +152,7 @@ public class Hash {
 		return output;
 	}
 
+	@Deprecated
 	public static String getSHA256String(byte[] input){
 		return Misc.bytesToHex(getSHA256(input));
 	}
