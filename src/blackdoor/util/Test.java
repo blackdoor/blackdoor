@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -31,6 +32,9 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
+
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Hash;
@@ -40,7 +44,9 @@ import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.crypto.HistoricSHE.EncryptedInputStream;
 //import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
-import blackdoor.util.CommandLineParser.DuplicateParameterException;
+import blackdoor.util.CommandLineParser.Argument;
+import blackdoor.util.CommandLineParser.DuplicateOptionException;
+import blackdoor.util.CommandLineParser.InvalidFormatException;
 import blackdoor.util.Watch.StopWatch;
 
 public class Test {
@@ -77,15 +83,19 @@ public class Test {
 		//cryptoStreamTest();
 	}
 	
-	public static void commandLineParserTest() throws DuplicateParameterException{
+	public static void commandLineParserTest() throws DuplicateOptionException, InvalidFormatException{
 		CommandLineParser clp = new CommandLineParser();
-		clp.addOptions(new String[]{ "--source, ?","-r,--readonly", "--file,-f,+", "*, -l, --flag, -h this is helptext"});
-		String test1[] = new String[] {"source.txt", "-r", "--file", "out.txt", "-f"};
+		clp.addArguments(new String[]{ "--source, ?","-r,--readonly", "--file,-f,+", "*, -l, --flag, -h this is helptext"});
+		Argument arg = new Argument().setLongOption("booger").setOption("b").setRequiredArg(true).setTakesValue(true).setValueHint("garg");
+		clp.addArgument(arg);
+		String test1[] = new String[] {"source.txt", "-r", "--file", "out.txt", "-l", "--booger"};
 		System.out.println(clp.getHelpText());
-		System.out.println(clp.nonOptions);
+		System.out.println(clp.params);
 		System.out.println(clp.getParsedArgs(test1));
-		System.out.println(clp.sortedArgs);
-		
+		System.out.println(clp.args);
+		Map out = clp.parseArgs(test1);
+		System.out.println(out.keySet());
+		System.out.println(out.entrySet());
 		
 		
 	}
