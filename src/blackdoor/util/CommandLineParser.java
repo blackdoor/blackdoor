@@ -1,50 +1,54 @@
 package blackdoor.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * CommandLineParser is a ... command line parser. CLP offers GNU-like help menus and option syntax.<p>
+ * To help understand methods and variables in this class the following definitions are given: <p>
+ * An argument is anything in the command line after the program name. <p>
+ * An parameter is an argument not specified by an option. <p>
+ * An option is a one letter or one word indicator (preceded by one or two dashes, respectively.) that can be on it's own, or be followed by whitespace and then a value.<p>
+ * A value is used to define some attribute in the command line, and is typically preceded by and associated with an option.<p>
+ * e.g. in "wget --output index.html -t 5 google.com/file.txt" "output" and "t" are options, "index.html" and "5" are the values of "output" and "t" respectively, while "google.com/file.txt" is a parameter. Everything in the string is an argument, except "wget" which is the program name.
+ * @author nfischer3
+ *
+ */
 public class CommandLineParser {
 	
 	//private String [] args;
-	private List<List<String>> sortedArgs = null;
-	private List<Option> options = null;
-	private List<Option> nonOptions;
+	public List<List<String>> sortedArgs = null;
+	public ArrayList<Argument> args = null;
+	public List<Argument> params;
 	private String usageHint = "";
 	private String executableName = "";
 	
 	public CommandLineParser(){
 		sortedArgs = new ArrayList<List<String>>();
-		options = new ArrayList<Option>();
-		nonOptions = new ArrayList<Option>();
+		args = new ArrayList<Argument>();
+		params = new ArrayList<Argument>();
 	}
-	
-//	/**
-//	 * Get the parsed and checked command line arguments for this parser
-//	 * non-option parameters are assigned the -- name from the non-option parameters FIFO based on when the non option parameter was added to the parser
-//	 * @return A list of strings, the first([0]) element in each list
-//	 * 		is the command line option, if the second([1]) element exists it is the 
-//	 * 		parameter for that option.
-//	 * 		Returns null if parseArgs(String[]) has not been called.
-//	 */
-//	public List<List<String>> getParsedArgs(){
-//		return sortedArgs;
-//	}
 	
 	/**
 	 * Get the parsed and checked command line arguments for this parser
 	 * @param args - The command line arguments to add. These can be passed straight from the parameter of main(String[])<p>
-	 * @return A list of strings, the first([0]) element in each list<p>
+	 * @return A list of strings, the first([0]) element in each list
 	 * 		is the command line option, if the second([1]) element exists it is the
 	 * 		parameter for that option.<p>
 	 * 		Returns null if parseArgs(String[]) has not been called.
+	 * @throws InvalidFormatException 
 	 */
-	public List<List<String>> getParsedArgs(String[] args) {
+	@Deprecated
+	public List<List<String>> getParsedArgs(String[] args) throws InvalidFormatException {
 		for (int i = 0; i < args.length; i++) {
 			if(!args[i].startsWith("-")){
-				if(nonOptions.size() > 0){
+				if(this.params.size() > 0){
 					List<String> option = new ArrayList<String>();
-					option.add(nonOptions.get(0).longOption);
-					nonOptions.remove(0);
+					option.add(this.params.get(0).longOption);
+					this.params.remove(0);
 					option.add(args[i]);
 					sortedArgs.add(option);
 				}else{
@@ -54,14 +58,14 @@ public class CommandLineParser {
 
 			}else{
 
-				for (Option option : options) {
+				for (Argument option : this.args) {
 					if (option.matchesFlag(args[i])) {
 						List<String> command = new ArrayList<String>();
 						command.add(noDashes(args[i]));
-						if (option.hasParam) {
+						if (option.takesValue) {
 							try {
 								if (args[i + 1].startsWith("-")) {
-									if (option.paramRequired)
+									if (option.valueRequired)
 										throw new InvalidFormatException(
 												"Invalid command line format: -"
 														+ option.option
@@ -82,19 +86,116 @@ public class CommandLineParser {
 		}
 		return sortedArgs;
 	}
+	
+	/**
+	 * Parse arguments from the command line into Argument objects.
+	 * @param args An array of Strings passed to main from the command line.
+	 * @return A map of Argument objects, if an argument had a long form then that is the key, otherwise the short form is the key.
+	 * @throws InvalidFormatException Thrown if the command line is not in a valid format or if a required argument is missing, or if a required value is missing from an argument, etc...
+	 */
+	public Map<String, Argument> parseArgs(String[] args) throws InvalidFormatException{
+		HashMap<String, Argument> parsedArgs = new HashMap<String, Argument>();
+		for(int i = 0; i < args.length; i++){
+//arg does not start with "-" and is therefore a parameter
+			if(!args[i].startsWith("-")){
+				Argument param = null;
+//find parameter in this.args
+				for(Argument arg : this.args){
+					if(arg.isParam){
+						param = arg;
+						break;
+					}
+					throw new InvalidFormatException(args[i] + " is a parameter, this parser does not have any parameter arguments defined.");
+				}
+//check if parameter has already been parsed
+				if(parsedArgs.containsKey(param.longOption)){
+//check if parameter is allowed to be parsed more than once
+					if(parsedArgs.get(param.longOption).multipleAllowed){
+						parsedArgs.get(param.longOption).addValue(args[i]);
+					}else{
+						throw new InvalidFormatException(args[i] + " is a duplicate parameter, this parser is only configured to accept one value for parameter " + param.longOption);
+					}
+//if parameter has not been parsed, add it to map of parsed args
+				}else{
+					parsedArgs.put(param.longOption, ((Argument) param.clone()).addValue(args[i]));
+				}
+//arg starts with -- and is therefore an option
+			}else{
+//if option is in long form
+				boolean l = false;
+				if(args[i].startsWith("--"))
+					l = true;
+				String form = noDashes(args[i]);
+				Argument opt = null;
+//find option in args
+				for(Argument arg : this.args){
+					if(l ? form.equalsIgnoreCase(arg.longOption) : form.equals(arg.option)){
+						opt = arg;
+						break;
+					}
+				}
+				if (opt == null)
+					throw new InvalidFormatException(args[i] + " is not a valid option for this parser.");
+				String key = opt.longOption == null ? opt.option : opt.longOption;
+				if(parsedArgs.containsKey(key)){
+					if(parsedArgs.get(key).multipleAllowed){
+						if(parsedArgs.get(key).takesValue()){
+							if(!args[i + 1].startsWith("-")){
+								parsedArgs.get(key).addValue(args[++i]);
+							}else{
+								if(parsedArgs.get(key).isValueRequired()){
+									throw new InvalidFormatException(args[i] + " requires a value, " + args[i + 1] + " is an option, not a value.");
+								}
+							}
+						}
+					}else {
+						throw new InvalidFormatException(args[i] + " is a duplicate option, this parser is only configured to accept one value for option " + key);
+					}
+				}else {
+					opt = (Argument) opt.clone();
+					if(opt.takesValue()){
+						if(i+1 < args.length && !args[i + 1].startsWith("-")){
+							opt.addValue(args[++i]);
+						}else{
+							if(opt.isValueRequired()){
+								throw new InvalidFormatException(args[i] + " requires a value, " + (i+1 < args.length ? args[i + 1] + " is an option, not a value." : " there should be an value after it."));
+							}
+						}
+					}
+					parsedArgs.put(key, (Argument) opt.clone());
+				}
+			}
+		}
+		Set<String> set = parsedArgs.keySet();
+		for(Argument arg : this.args){
+			if(arg.isRequiredArg() && !set.contains(arg.getLongOption() == null ? arg.getOption() : arg.getLongOption())){
+				throw new InvalidFormatException(arg.getLongOption() == null ? arg.getOption() : arg.getLongOption() + " is a required argument, but was not included in command line.");
+			}
+		}
+		return parsedArgs;
+	}
 
 	public String getHelpText(){
-		String ret = "Usage: " + executableName + " [OPTION]... ";
-		for(Option opt : options){
-			if(opt.nonOptionParam)
-				ret += opt.longOption + " ";
-		}
-		ret += "\n" + usageHint + "\n";
-		for(Option option : options){
-			if(!option.nonOptionParam){
-				ret += "\t-" + option.option + "\t--" + option.longOption;
-				ret += "\n\t\t\t" + option.helpText + "\n";
+		@SuppressWarnings("unchecked")
+		ArrayList<Argument> arguments = (ArrayList<Argument>)this.args.clone();
+		String ret = "Usage: " + executableName;
+		for(Argument arg : this.args){
+			if(arg.isParam){
+				ret += arg.longOption + " ";
+				arguments.remove(arg);
 			}
+		}
+		for(Argument arg:this.args){
+			if(arg.isRequiredArg()){
+				ret += arg.getLongOption() == null ? "-" + arg.getOption() : "--" + arg.getLongOption() + " ";
+				//TODO ret += arg.getValueHint().length() > 0 && arg.takesValue() ? " " + arg.getValueHint() + " " : " ";
+			}
+		}
+		ret += "[OPTION]... ";
+		ret += "\n" + usageHint + "\n";
+		for(Argument option : arguments){
+			ret += "\t-" + option.option + "\t--" + option.longOption + (option.getValueHint().length() > 0 && option.takesValue() ? "=" + option.getValueHint() : "");
+			ret += "\n\t\t\t" + option.helpText + "\n";
 		}
 		return ret;
 	}
@@ -122,7 +223,7 @@ public class CommandLineParser {
 
 	/**
 	 * adds options for this command line parser
-	 * @param optionList a list of Strings of options in a comma separated format<p>
+	 * @param argList a list of Strings of options in a comma separated format<p>
 	 * 		single char options should be prepended with a single "-"<p>
 	 * 		string options should be prepended with "--"<p>
 	 * 		non-option parameters should add a "?" to the string. non-option parameters should define the string (long/--) form option.<p>
@@ -131,12 +232,15 @@ public class CommandLineParser {
 	 * 		to add helptext for this option, add -h followed by the help text<p>
 	 * 		if there MUST be a parameter after this command line option then add a "+" to the string. 
 	 * 		alternatively if there MAY be a parameter after this command line option then add a "*" to the string<p>
-	 * 		eg. "-r.--readonly" or "--file,-f,+" or "*, -f, --flag, -h this is helptext" or "--source, ?"
+	 * 		eg. "-r,--readonly" or "--file,-f,+" or "*, -f, --flag, -h this is helptext" or "--source, ?"
+	 * @throws DuplicateOptionException 
+	 * @throws InvalidFormatException 
 	 */
-	public void addOptions(String [] optionList){
-		for(String option : optionList){
-			Option f = new Option();
-			String[] breakdown = option//.replaceAll("\\s", "")
+	@Deprecated
+	public void addArguments(String [] argList) throws DuplicateOptionException, InvalidFormatException{
+		for(String arg : argList){
+			Argument f = new Argument();
+			String[] breakdown = arg//.replaceAll("\\s", "")
 					.split(",");
 			for(String s : breakdown){
 				s = s.trim();
@@ -147,48 +251,88 @@ public class CommandLineParser {
 				}else if(s.startsWith("-")){
 					f.option = noDashes(s);
 				}else if(s.equals("+")){
-					f.hasParam = true;
-					f.paramRequired = true;
+					f.takesValue = true;
+					f.valueRequired = true;
 				}else if(s.equals("?")){
-					f.nonOptionParam = true;
-					nonOptions.add(f);
+					f.isParam = true;
+					f.takesValue = true;
+					params.add(f);
 				}else if(s.equals("*")){
-					f.hasParam = true;
+					f.takesValue = true;
 				}else{
-					throw new InvalidFormatException(s + " in " + option + " is not formatted correctly.");
+					throw new InvalidFormatException(s + " in " + arg + " is not formatted correctly.");
 				}
 			}
-			options.add(f);
+			addArgument(f);
 		}
-		System.out.println(options);
+		System.out.println(args);
 	}
 	
 	/**
 	 * Add a single option to this command line parser.
 	 * Convenience method for calling addFlags with only one option
-	 * @param optionString - formatted string for this command line option, should be in same format as strings in addOptions(String[])
+	 * @param argumentString - formatted string for this command line option, should be in same format as strings in addOptions(String[])
+	 * @throws DuplicateOptionException 
+	 * @throws InvalidFormatException 
 	 */
-	public void addOption(String optionString){
-		addOptions(new String[]{optionString});
+	@Deprecated
+	public void addArgument(String argumentString) throws DuplicateOptionException, InvalidFormatException{
+		addArguments(new String[]{argumentString});
+	}
+	
+	
+	
+	/**
+	 * Add an argument for this command line parser. Options should not be prepended by dashes.
+	 * @param shortForm Single character command line option
+	 * @param longForm String command line option
+	 * @param helpText Help text to show after the short and long form in getHelpText()
+	 * @param isParameter True if this argument is a parameter and will not be preceded by an option
+	 * @param valueRequired True if the user MUST enter a value for this argument.
+	 * @param takesValue Should be true if this option may followed by a value when called from the command line.
+	 * @throws DuplicateOptionException Thrown if this parser already has an option with the same short or long form.
+	 */
+	@Deprecated
+	public void addArgument(char shortForm, String longForm, String helpText, boolean isParameter, boolean takesValue, boolean valueRequired) throws DuplicateOptionException{
+		Argument f = new Argument();
+		f.option = ""+shortForm;
+		f.longOption = longForm;
+		f.takesValue = takesValue;
+		f.valueRequired = valueRequired;
+		f.helpText = helpText;
+		f.isParam = isParameter;
+		if(isParameter)
+			params.add(f);
+		addArgument(f);
 	}
 	
 	/**
-	 * Add a option for this command line parser. Parameters should not be prepended by dashes.
-	 * @param shortForm - Single character command line option
-	 * @param longForm	- String command line option
-	 * @param hasParameter - Should be true if this option will be followed by a parameter when called from the command line.
+	 * Add an argument for this command line parser.
+	 * @param arg The Argument object to add to this parser
+	 * @throws DuplicateOptionException Thrown if this parser already has an option with the same short or long form.
 	 */
-	public void addOption(char shortForm, String longForm, String helpText, boolean nonOptionParam, boolean hasParameter, boolean parameterRequired){
-		Option f = new Option();
-		f.option = ""+shortForm;
-		f.longOption = longForm;
-		f.hasParam = hasParameter;
-		f.paramRequired = parameterRequired;
-		f.helpText = helpText;
-		f.nonOptionParam = nonOptionParam;
-		if(nonOptionParam)
-			nonOptions.add(f);
-		options.add(f);
+	public void addArgument(Argument arg) throws DuplicateOptionException{
+		duplicateOption(arg);
+		args.add(arg);
+	}
+	
+	private void duplicateOption(Argument opt) throws DuplicateOptionException{
+		for(Argument op : args){
+			if(opt.duplicateOptions(op))
+				throw new DuplicateOptionException(opt);
+		}
+	}
+	
+	/**
+	 * Convenience method to add arguments from an array.
+	 * Same as calling addArgument(Option) on every element in args.
+	 * @param args Array of Arguments to add for this CommandLineParser.
+	 * @throws DuplicateOptionException Thrown if this parser already has an option with the same short or long form as one of the objects you are trying to add.
+	 */
+	public void addArguments(Argument[] args) throws DuplicateOptionException{
+		for(Argument opt : args){
+			addArgument(opt);
+		}
 	}
 	
 	private String noDashes(String s){
@@ -196,35 +340,212 @@ public class CommandLineParser {
 	}
 	
 	
-	private class Option{
-		
-		String option = "";
-		String longOption = "";
-		String param = null;
+	public static class Argument implements Cloneable{
+		/**
+		 * Short form of command line option.<p>
+		 * e.g. -f as in file
+		 */
+		String option = null;
+		/**
+		 * Long form of command line option.<p>
+		 * e.g. --file
+		 */
+		String longOption = null;
+		/**
+		 * Once an argument string from the command line is parsed, this list will be filled with any values attributable to this argument.
+		 */
+		protected ArrayList<String> values = new ArrayList<String>();
+		/**
+		 * The string of text to enter along side the options for this argument in the help menu.
+		 */
 		String helpText = "";
-		boolean hasParam = false;
-		boolean paramRequired = false;
-		boolean nonOptionParam = false;
+		/**
+		 * The value hint that will appear in the help menu.
+		 */
+		String valueHint = "";
+		/**
+		 * True if this argument is a parameter or an option that takes values. False if this argument is an option that simply acts as a flag.
+		 */
+		boolean takesValue = true;
+		/**
+		 * True if this argument is a parameter or if there must be a value after this argument if it is an option.
+		 */
+		boolean valueRequired = false;
+		/**
+		 * True if this argument will never have an option in front of it.
+		 */
+		boolean isParam = false;
+		/**
+		 * True if this argument must be supplied. If requiredArg is true and this argument is not supplied in a command string then the help menu will be shown.
+		 */
+		boolean requiredArg = false;
+		/**
+		 * True if this argument can occur more than one time in the command line.
+		 */
+		boolean multipleAllowed = true;
+		
+		/**
+		 * Returns a deep copy of this Argument object.
+		 */
+		public Object clone(){
+			Argument out = new Argument().setHelpText(this.helpText).setLongOption(this.longOption).setMultipleAllowed(this.multipleAllowed).setOption(this.option).setParam(this.isParam).setRequiredArg(requiredArg).setTakesValue(takesValue).setValueRequired(valueRequired);
+			for(String value : values){
+				out.addValue(value);
+			}
+			return out;
+		}
+		
+		public boolean duplicateOptions(Argument arg){
+			if(option != null && arg.getOption() != null && arg.getOption().equals(option)){
+				return true;
+			}
+			if(longOption != null && arg.getLongOption() != null && arg.getLongOption().equals(longOption))
+				return true;
+			return false;
+		}
 		
 		public boolean matchesFlag(String option){
-			return !nonOptionParam && (option.equalsIgnoreCase("--"+longOption) || option.equals("-"+this.option));
+			return !isParam && (option.equalsIgnoreCase("--"+longOption) || option.equals("-"+this.option));
+		}
+		
+		
+		
+		/**
+		 * @return the valueHint
+		 */
+		public String getValueHint() {
+			return valueHint;
 		}
 
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
+		/**
+		 * @param valueHint the valueHint to set
 		 */
+		public Argument setValueHint(String valueHint) {
+			this.valueHint = valueHint;
+			return this;
+		}
+
+		public String getOption() {
+			return option;
+		}
+
+		public Argument setOption(String option) {
+			this.option = option;
+			return this;
+		}
+
+		public String getLongOption() {
+			return longOption;
+		}
+
+		public Argument setLongOption(String longOption) {
+			this.longOption = longOption.toLowerCase();
+			return this;
+		}
+
+		public ArrayList<String> getValues() {
+			return values;
+		}
+
+		public Argument addValue(String value) {
+			this.values.add(value);
+			return this;
+		}
+
+		/**
+		 * @return the helpText
+		 */
+		public String getHelpText() {
+			return helpText;
+		}
+		
+		/**
+		 * @param helpText the helpText to set
+		 */
+		public Argument setHelpText(String helpText) {
+			this.helpText = helpText;
+			return this;
+		}
+
+		public boolean takesValue() {
+			return takesValue;
+		}
+
+		public Argument setTakesValue(boolean takesValue) {
+			this.takesValue = takesValue;
+			return this;
+		}
+
+		public boolean isValueRequired() {
+			return valueRequired;
+		}
+
+
+		public Argument setValueRequired(boolean valueRequired) {
+			this.valueRequired = valueRequired;
+			return this;
+		}
+
+		public boolean isParam() {
+			return isParam;
+		}
+
+
+		public Argument setParam(boolean isParam) {
+			this.isParam = isParam;
+			return this;
+		}
+
+		public boolean isRequiredArg() {
+			return requiredArg;
+		}
+
+		public Argument setRequiredArg(boolean requiredArg) {
+			this.requiredArg = requiredArg;
+			return this;
+		}
+
+		public boolean isMultipleAllowed() {
+			return multipleAllowed;
+		}
+
+		public Argument setMultipleAllowed(boolean multipleAllowed) {
+			this.multipleAllowed = multipleAllowed;
+			return this;
+		}
+
 		@Override
 		public String toString() {
-			return "Option [option=" + option + ", longOption=" + longOption
-					+ ", param=" + param + ", hasParam=" + hasParam
-					+ ", paramRequired=" + paramRequired + " helpText=" + helpText +"]";
+			return "Argument [option=" + option + ", longOption=" + longOption
+					+ ", values=" + values + ", helpText=" + helpText
+					+ ", takesValue=" + takesValue + ", valueRequired="
+					+ valueRequired + ", isParam=" + isParam + ", requiredArg="
+					+ requiredArg + ", multipleAllowed=" + multipleAllowed
+					+ "]";
 		}
-
 		
 		
 	}
 	
-	public class InvalidFormatException extends RuntimeException{ 
+	public class DuplicateOptionException extends Exception{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public DuplicateOptionException(String option) {
+			super(option.length() > 1 ? "--" : "-" + option + " has already been added as an option");
+		}
+		
+		public DuplicateOptionException(Argument arg) {
+			super("-" +arg.option + " or " + "--" +arg.longOption+ " has already been added as an option");
+		}
+		
+	}
+	
+	@SuppressWarnings("serial")
+	public class InvalidFormatException extends Exception{ 
 		InvalidFormatException(String s){
 			super(s);
 		}
