@@ -85,13 +85,14 @@ public class Test {
 	
 	public static void commandLineParserTest() throws DuplicateOptionException, InvalidFormatException{
 		CommandLineParser clp = new CommandLineParser();
-		clp.addArguments(new String[]{ "--source, ?","-r,--readonly", "--file,-f,+", "*, -l, --flag, -h this is helptext"});
-		Argument arg = new Argument().setLongOption("booger").setOption("b").setRequiredArg(true).setTakesValue(true).setValueHint("garg");
+		clp.addArguments(new String[]{ "--source, ?","-r,--readonly", "--file,+", "*, -fl, --flag, -h this is helptext"});
+		Argument arg = new Argument().setLongOption("blarg").setOption("b").setRequiredArg(true).setTakesValue(true).setValueHint("garg");
 		clp.addArgument(arg);
-		String test1[] = new String[] {"source.txt", "-r", "--file", "out.txt", "-l", "--booger"};
+		clp.addArgument(new Argument().setOption("I").setLongOption("include-directories").setValueHint("number").setHelpText("comma-separated list of accepted extensions."));
+		String test1[] = new String[] {"source.txt", "dest.txt", "-r", "--file", "out.txt", "-fl", "-b"};
 		System.out.println(clp.getHelpText());
 		System.out.println(clp.params);
-		System.out.println(clp.getParsedArgs(test1));
+		//System.out.println(clp.getParsedArgs(test1));
 		System.out.println(clp.args);
 		Map out = clp.parseArgs(test1);
 		System.out.println(out.keySet());

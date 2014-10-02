@@ -13,7 +13,7 @@ import java.util.Set;
  * An parameter is an argument not specified by an option. <p>
  * An option is a one letter or one word indicator (preceded by one or two dashes, respectively.) that can be on it's own, or be followed by whitespace and then a value.<p>
  * A value is used to define some attribute in the command line, and is typically preceded by and associated with an option.<p>
- * e.g. in "wget --output index.html -t 5 google.com/file.txt" "output" and "t" are options, "index.html" and "5" are the values of "output" and "t" respectively, while "google.com/file.txt" is a parameter. Everything in the string is an argument, except "wget" which is the program name.
+ * e.g. in "wget --output index.html -t 5 google.com/file.txt" "output" and "t" are options, "index.html" and "5" are the values of "output" and "t" respectively, while "google.com/file.txt" is the value of a parameter. Everything in the string is an argument, except "wget" which is the program name.
  * @author nfischer3
  *
  */
@@ -175,6 +175,10 @@ public class CommandLineParser {
 		return parsedArgs;
 	}
 
+	/**
+	 * Get a GNU-like help text output. This should be displayed when the options -h, --help are entered, or when an invalid command line is entered.
+	 * @return GNU-like help output.
+	 */
 	public String getHelpText(){
 		@SuppressWarnings("unchecked")
 		ArrayList<Argument> arguments = (ArrayList<Argument>)this.args.clone();
@@ -187,17 +191,51 @@ public class CommandLineParser {
 		}
 		for(Argument arg:this.args){
 			if(arg.isRequiredArg()){
-				ret += arg.getLongOption() == null ? "-" + arg.getOption() : "--" + arg.getLongOption() + " ";
+				ret += arg.getLongOption() == null ? "-" + arg.getOption() : "--" + arg.getLongOption();
+				ret += " ";
 				//TODO ret += arg.getValueHint().length() > 0 && arg.takesValue() ? " " + arg.getValueHint() + " " : " ";
 			}
 		}
 		ret += "[OPTION]... ";
 		ret += "\n" + usageHint + "\n";
+		ArrayList<String> col1 = new ArrayList<String>();
+		ArrayList<String> col2 = new ArrayList<String>();
 		for(Argument option : arguments){
-			ret += "\t-" + option.option + "\t--" + option.longOption + (option.getValueHint().length() > 0 && option.takesValue() ? "=" + option.getValueHint() : "");
-			ret += "\n\t\t\t" + option.helpText + "\n";
+			String line = option.getOption() != null 
+					? String.format("  %-5s", "-" + option.option + 
+							(option.getLongOption() != null 
+							? ","
+							: ""))
+					: String.format("  %-5s", "");
+			line += option.getLongOption() != null 
+					? "--" + option.longOption + (option.getValueHint().length() > 0 && option.takesValue() 
+							? "=" + option.getValueHint() 
+							: "") 
+					: "";
+			col1.add(line);
+			col2.add(option.helpText);
+			line = String.format("    %-35s%s\n", line, option.helpText);
+			ret += line;
 		}
+		System.out.println(theColumnator((String[])col1.toArray(new String[]{}), (String[])col2.toArray(new String[]{}), 2, 80));
 		return ret;
+	}
+	
+	private static String theColumnator(String[] col1, String[] col2, int dividerSize, int pageWidth){
+		String output = "";
+		int maxCol1Len = 0;
+		int col2Indent;
+		for(String line:col1){
+			if(line.length() > maxCol1Len)
+				maxCol1Len = line.length();
+		}
+		col2Indent = dividerSize + maxCol1Len;
+		
+		for(int i = 0; i < col1.length; i++){
+			output += String.format("%-"+col2Indent+"s%s\n", col1[i], col2[i]);
+		}
+		
+		return output;
 	}
 	
 	/**
@@ -320,6 +358,9 @@ public class CommandLineParser {
 		for(Argument op : args){
 			if(opt.duplicateOptions(op))
 				throw new DuplicateOptionException(opt);
+			if(opt.isParam() && op.isParam()){
+				throw DuplicateOptionException.customMessageBuilder("You can only have one parameter argument defined. You already defined " + op.getLongOption() + ". The existing parameter argument can have multiple values.");
+			}
 		}
 	}
 	
@@ -439,7 +480,7 @@ public class CommandLineParser {
 		}
 
 		public Argument setLongOption(String longOption) {
-			this.longOption = longOption.toLowerCase();
+			this.longOption = longOption == null ? null : longOption.toLowerCase();
 			return this;
 		}
 
@@ -527,7 +568,7 @@ public class CommandLineParser {
 		
 	}
 	
-	public class DuplicateOptionException extends Exception{
+	public static class DuplicateOptionException extends Exception{
 
 		/**
 		 * 
@@ -542,6 +583,13 @@ public class CommandLineParser {
 			super("-" +arg.option + " or " + "--" +arg.longOption+ " has already been added as an option");
 		}
 		
+		private DuplicateOptionException(String e, boolean x){
+			super(e);
+		}
+		
+		public static DuplicateOptionException customMessageBuilder(String e){
+			return new DuplicateOptionException(e,false);
+		}
 	}
 	
 	@SuppressWarnings("serial")
