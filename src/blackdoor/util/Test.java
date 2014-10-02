@@ -28,6 +28,9 @@ import javax.xml.bind.DatatypeConverter;
 
 //import org.apache.commons.io.FileUtils;
 
+
+
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Hash;
@@ -37,6 +40,7 @@ import blackdoor.crypto.Crypto.InvalidKeyLengthException;
 import blackdoor.crypto.HistoricSHE.EncryptedInputStream;
 //import blackdoor.crypto.SHEStream;
 import blackdoor.struct.ByteQueue;
+import blackdoor.util.CommandLineParser.DuplicateParameterException;
 import blackdoor.util.Watch.StopWatch;
 
 public class Test {
@@ -62,7 +66,8 @@ public class Test {
 		//ticketTest();
 		//cryptoTest();
 
-		DBPTest();
+		//DBPTest();
+		commandLineParserTest();
 		
 		//SHEStreamTest();
 		//NISTBench();
@@ -70,6 +75,19 @@ public class Test {
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
+	}
+	
+	public static void commandLineParserTest() throws DuplicateParameterException{
+		CommandLineParser clp = new CommandLineParser();
+		clp.addOptions(new String[]{ "--source, ?","-r,--readonly", "--file,-f,+", "*, -l, --flag, -h this is helptext"});
+		String test1[] = new String[] {"source.txt", "-r", "--file", "out.txt", "-f"};
+		System.out.println(clp.getHelpText());
+		System.out.println(clp.nonOptions);
+		System.out.println(clp.getParsedArgs(test1));
+		System.out.println(clp.sortedArgs);
+		
+		
+		
 	}
 	
 	public static void DBPTest(){
