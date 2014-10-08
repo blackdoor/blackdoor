@@ -73,7 +73,8 @@ public class Test {
 		//cryptoTest();
 
 		//DBPTest();
-		commandLineParserTest();
+		//commandLineParserTest();
+		bitCounterTest();
 		
 		//SHEStreamTest();
 		//NISTBench();
@@ -81,6 +82,19 @@ public class Test {
 		//bufferTest();
 		//qTest();
 		//cryptoStreamTest();
+	}
+	
+	public static void bitCounterTest(){
+		System.out.println(Misc.getHammingDistance(new byte[]{0x00, (byte) 0xA0, 0x1}, new byte[]{(byte) 0xFF, 0x00}));
+		for(byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++){
+			//System.out.println(Misc.bytesToHex(new byte[]{i}) + " has " + Misc.bitCount(i) + " bits");
+			//System.out.println(Misc.bytesToHex(new byte[]{i}) + " has " + Integer.bitCount(i) + " bits");
+			if(Integer.bitCount(i) != Misc.bitCount(i)){
+				System.out.println(Misc.bytesToHex(new byte[]{i}) + " " +Integer.bitCount(i)+ " vs " + Misc.bitCount(i));
+				System.out.println(Integer.toBinaryString(i).substring(Integer.toBinaryString(i).length()-8, Integer.toBinaryString(i).length()));
+			}
+			//System.out.println(Misc.bitCount(i));
+		}
 	}
 	
 	public static void commandLineParserTest() throws DuplicateOptionException, InvalidFormatException{

@@ -5,12 +5,58 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.BitSet;
 
 import javax.xml.bind.DatatypeConverter;
 
 public class Misc {
 	
 	public static final char NULL = '\u0000';
+	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @return The Hamming distance between a and b
+	 */
+	public static int getHammingDistance(byte[] a, byte[] b){
+		int d = 0;
+		int i;
+		for(i = 0; i < Math.min(a.length, b.length); i++){
+			d += bitCount((byte) (a[i]^b[i]));
+		}
+		System.out.println(i < Math.max(a.length, b.length));
+		for(i = i; i < Math.max(a.length, b.length); i++){
+			d += bitCount(
+					a.length > b.length
+					? a[i]
+					: b[i]);
+		}
+		return d;
+	}
+	
+	/**
+	 * Same as getHammingDistance but uses java's BitSet class
+	 * Probably not as quick as getHammingDistance
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static int getCardinalXOR(byte[] a, byte[] b){
+		BitSet aSet= BitSet.valueOf(a);
+		aSet.xor(BitSet.valueOf(b));
+		return aSet.cardinality();
+	}
+	
+	public static int bitCount(byte i) {
+		// HD, Figure 5-2
+		i = (byte) (i - ((i >>> 1) & 0x55555555));
+		i = (byte) ((i & 0x33333333) + ((i >>> 2) & 0x33333333));
+		i = (byte) ((i + (i >>> 4)) & 0x0f0f0f0f);
+		i = (byte) (i + (i >>> 8));
+		i = (byte) (i + (i >>> 16));
+		return i & 0x3f;
+	}
 	
 	/**
 	 * Get the byte representation of num
@@ -59,6 +105,8 @@ public class Misc {
 	    //Print total available memory
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
 	}
+	
+	@Deprecated
 	public static String getHexBytes(byte[] in, String space){
 		return DatatypeConverter.printHexBinary(in);
 //		String out = "";
@@ -77,6 +125,7 @@ public class Misc {
 //			return out.substring(0, out.length());
 //		return out.substring(0, out.length()-1);
 	}
+	
 	/**
 	 * Very fast method to get hex string from byte array.
 	 * credit to maybeWeCouldStealAVan and others on stackoverflow 
@@ -92,6 +141,7 @@ public class Misc {
 	    }
 	    return new String(hexChars);
 	}
+	
 	/**
 	 * Serialize an object into a byte array
 	 * @param s a Serializable object
@@ -112,6 +162,7 @@ public class Misc {
 	 * Performs an XOR operation on two arrays of bytes, byte by byte.
 	 * The returned array will be the same length as the longest parameter array,
 	 * the shorter array will be padded with 0's.
+	 * Has the same memory concerns as cleanXOR
 	 * @param array1
 	 * @param array2
 	 * @return array1 XOR array2.
@@ -145,6 +196,20 @@ public class Misc {
 		}
 		return array3;
 	}
+	
+	/** 
+	 * Same as XOR, but uses java's BitSet.
+	 * performance comparison not yet tested.
+	 * @param array1
+	 * @param array2
+	 * @return
+	 */
+	public static byte[] XOR2(byte[] array1, byte[] array2){
+		BitSet aSet= BitSet.valueOf(array1);
+		aSet.xor(BitSet.valueOf(array2));
+		return aSet.toByteArray();
+	}
+	
 	/*
 	 * this xor's the parameters, which must be the same length. 
 	 * after calling both a and b will be changed to the same xor
@@ -156,9 +221,11 @@ public class Misc {
 			a[i] = b[i] = (byte) (a[i]^b[i]);
 		}
 	}
+	
 	/*
 	 * this xor's the parameters, which must be the same length. 
 	 * after calling only a will be changed to a xor b
+	 * @return a
 	 */
 	public static byte[] XORintoA(byte[] a, byte[] b){
 		if(a.length != b.length)
