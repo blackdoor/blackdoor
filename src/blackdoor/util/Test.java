@@ -72,9 +72,10 @@ public class Test {
 		//ticketTest();
 		//cryptoTest();
 
-		//DBPTest();
+		
+		DBPTest();
 		//commandLineParserTest();
-		bitCounterTest();
+		//bitCounterTest();
 		
 		//SHEStreamTest();
 		//NISTBench();
@@ -120,6 +121,7 @@ public class Test {
 		DBP.ERROR = true;
 		DBP.WARNING = true;
 		DBP.LOG_ALL = true;
+		DBP.ERROR_AS_SYSTEM_ERROR = false;
 		DBP.toggleDebug();
 		DBP.printdebugln("test line" + 5);
 		DBP.printdemoln("demo");

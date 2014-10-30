@@ -31,7 +31,7 @@ public class DBP {
 	 * When true, all calls to printerror and printerrorln are written to
 	 * System.err rather than the default output.
 	 */
-	public static boolean ERROR_AS_SYSTEM_ERROR = false;
+	public static boolean ERROR_AS_SYSTEM_ERROR = true;
 	/**
 	 * When true, all output is written to the log file in addition to it's
 	 * usual output.
@@ -136,7 +136,12 @@ public class DBP {
 	 * @param e
 	 */
 	public static void printerror(Object e) {
-		print(e, "ERROR", ERROR, System.err);
+		PrintStream o;
+		if(ERROR_AS_SYSTEM_ERROR)
+			o = System.err;
+		else
+			o = singleton.out;
+		print(e, "ERROR", ERROR, o);
 	}
 
 	public static void printerrorln(Object e) {
