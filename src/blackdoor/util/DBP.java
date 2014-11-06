@@ -31,7 +31,7 @@ public class DBP {
 	 * When true, all calls to printerror and printerrorln are written to
 	 * System.err rather than the default output.
 	 */
-	public static boolean ERROR_AS_SYSTEM_ERROR = false;
+	public static boolean ERROR_AS_SYSTEM_ERROR = true;
 	/**
 	 * When true, all output is written to the log file in addition to it's
 	 * usual output.
@@ -78,6 +78,7 @@ public class DBP {
 	 *            error when ERROR_AS_SYSTEM_ERROR = true.
 	 */
 	public static void setDefaultOutput(PrintStream out) {
+		initSingleton();
 		singleton.out = out;
 	}
 
@@ -101,6 +102,7 @@ public class DBP {
 	}
 
 	private static void print(Object e, String mode, boolean flag, PrintStream o) {
+
 		Calendar cal;
 		String out;
 		if (flag || VERBOSE) {
@@ -110,6 +112,7 @@ public class DBP {
 			out += "" + e;
 			o.print(out);
 			if (LOG_ALL && !mode.equals("LOG")) {
+				initSingleton();
 				singleton.log.print(out);
 			}
 		}
@@ -136,7 +139,13 @@ public class DBP {
 	 * @param e
 	 */
 	public static void printerror(Object e) {
-		print(e, "ERROR", ERROR, System.err);
+		PrintStream o;
+		initSingleton();
+		if(ERROR_AS_SYSTEM_ERROR)
+			o = System.err;
+		else
+			o = singleton.out;
+		print(e, "ERROR", ERROR, o);
 	}
 
 	public static void printerrorln(Object e) {

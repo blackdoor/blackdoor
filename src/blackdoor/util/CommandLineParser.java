@@ -147,10 +147,11 @@ public class CommandLineParser implements Serializable {
 						param = arg;
 						break;
 					}
+				}
+				if(param == null)
 					throw new InvalidFormatException(
 							args[i]
 									+ " is a parameter, this parser does not have any parameter arguments defined.");
-				}
 				// check if parameter has already been parsed
 				if (parsedArgs.containsKey(param.longOption)) {
 					// check if parameter is allowed to be parsed more than once
@@ -257,18 +258,43 @@ public class CommandLineParser implements Serializable {
 		ret += "Usage: " + executableName + " ";
 		for (Argument arg : this.args) {
 			if (arg.isParam) {
-				ret += arg.longOption + " ";
+				ret += !arg.isRequiredArg() 
+						? "["
+						: "";
+				ret += arg.longOption;
+				
+				ret += !arg.isRequiredArg() 
+						? "]"
+						: "";
+				ret += arg.isMultipleAllowed()
+						? "..."
+						: "";
+				ret += " ";
+				
 				arguments.remove(arg);
 			}
 		}
-		for (Argument arg : this.args) {
+		for (Argument arg : arguments) {
 			if (arg.isRequiredArg()) {
+				ret += !arg.isRequiredArg() 
+						? "["
+						: "";
 				ret += arg.getLongOption() == null ? "-" + arg.getOption()
 						: "--" + arg.getLongOption();
+				
+				ret += !arg.isRequiredArg() 
+						? "]"
+						: "";
+				ret += arg.isMultipleAllowed()
+						? "..."
+						: "";
 				ret += " ";
 			}
 		}
-		ret += "[OPTION]... ";
+		ret += "[OPTION]";
+		ret += arguments.size() > 1
+				? "... "
+				: " ";
 		ret += "\n" + usageHint + "\n";
 		ArrayList<String> col1 = new ArrayList<String>();
 		ArrayList<String> col2 = new ArrayList<String>();
@@ -720,6 +746,9 @@ public class CommandLineParser implements Serializable {
 
 		public Argument setValueRequired(boolean valueRequired) {
 			this.valueRequired = valueRequired;
+			if(valueRequired){
+				this.takesValue = true;
+			}
 			return this;
 		}
 

@@ -165,3 +165,4 @@ pip-log.txt
 /bin1/*
 
 /bin1/
+*.log
