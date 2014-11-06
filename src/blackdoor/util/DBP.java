@@ -78,6 +78,7 @@ public class DBP {
 	 *            error when ERROR_AS_SYSTEM_ERROR = true.
 	 */
 	public static void setDefaultOutput(PrintStream out) {
+		initSingleton();
 		singleton.out = out;
 	}
 
@@ -101,6 +102,7 @@ public class DBP {
 	}
 
 	private static void print(Object e, String mode, boolean flag, PrintStream o) {
+
 		Calendar cal;
 		String out;
 		if (flag || VERBOSE) {
@@ -110,6 +112,7 @@ public class DBP {
 			out += "" + e;
 			o.print(out);
 			if (LOG_ALL && !mode.equals("LOG")) {
+				initSingleton();
 				singleton.log.print(out);
 			}
 		}
@@ -137,6 +140,7 @@ public class DBP {
 	 */
 	public static void printerror(Object e) {
 		PrintStream o;
+		initSingleton();
 		if(ERROR_AS_SYSTEM_ERROR)
 			o = System.err;
 		else

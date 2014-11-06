@@ -72,9 +72,9 @@ public class Test {
 		//ticketTest();
 		//cryptoTest();
 
-		
+
 		DBPTest();
-		//commandLineParserTest();
+		commandLineParserTest();
 		//bitCounterTest();
 		
 		//SHEStreamTest();
@@ -98,16 +98,32 @@ public class Test {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static void commandLineParserTest() throws DuplicateOptionException, InvalidFormatException{
 		CommandLineParser clp = new CommandLineParser();
-		clp.addArguments(new String[]{ "--source, ?","-r,--readonly", "--file,+", "*, -fl, --flag, -h this is helptext"});
+		clp.addArguments(new String[]{ 
+				//"--source, ?",
+				"-r,--readonly", "--file,+", "*, -fl, --flag, -h this is helptext"});
 		Argument arg = new Argument().setLongOption("blarg").setOption("b").setRequiredArg(true).setTakesValue(true).setValueHint("garg");
 		clp.addArgument(arg);
 		clp.setExecutableName("test.jar");
 		clp.addArgument(new Argument().setOption("I").setLongOption("include-directories").setValueHint("number").setHelpText("zzasdjf a;lksdjf a;lskdjf a;lskd jfalsk extensions."));
-		String test1[] = new String[] {"source.txt", "dest.txt", "-r", "--file", "out.txt", "-fl", "-b"};
-		System.out.println(clp.getHelpText());
+		clp.addArgument(new Argument().setOption("help").setLongOption("help"));
+		Argument param = new Argument().setParam(true).setMultipleAllowed(false).setTakesValue(false).setLongOption("subcommand").setRequiredArg(true);
+		clp.addArgument(param);
+		clp.setUsageHint("this is the usage hint");
+		System.out.println(param);
+		clp.setProgramDescription("cqbe is a hypercube thing \n you can also use JOIN, CERT CREATE, etc");
+		String test1[] = new String[] {
+				//"source.txt", "dest.txt", 
+				"create",
+				"--help", "-r", "--file", "out.txt", "-fl", "-b"
+				};
+		
 		Map out = clp.parseArgs(test1);
+		
+			System.out.println(clp.getHelpText());
+		
 		System.out.println(out.keySet());
 		System.out.println(out.entrySet());
 		
@@ -122,13 +138,14 @@ public class Test {
 		DBP.WARNING = true;
 		DBP.LOG_ALL = true;
 		DBP.ERROR_AS_SYSTEM_ERROR = false;
+		DBP.printerrorln("err");
+		DBP.ERROR_AS_SYSTEM_ERROR = true;
+		DBP.printerrorln("err as sys err");
 		DBP.toggleDebug();
 		DBP.printdebugln("test line" + 5);
 		DBP.printdemoln("demo");
 		DBP.printdevln("dev");
-		DBP.printerrorln("err");
-		DBP.ERROR_AS_SYSTEM_ERROR = true;
-		DBP.printerrorln("err as sys err");
+		
 		DBP.printwarningln("warning");
 		DBP.printlogln("log");
 	}
