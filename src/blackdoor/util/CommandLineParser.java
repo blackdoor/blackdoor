@@ -706,6 +706,15 @@ public class CommandLineParser implements Serializable {
 			return this;
 		}
 
+		public String getValue() {
+			if (!multipleAllowed) {
+				throw new RuntimeException(
+						"This argument may have multiple values, getValue may only be used for arguments with"
+								+ "multipleAllowed == true");
+			}
+			return values.get(0);
+		}
+		
 		public ArrayList<String> getValues() {
 			return values;
 		}
@@ -781,8 +790,8 @@ public class CommandLineParser implements Serializable {
 
 		@Override
 		public String toString() {
-			return "Argument [option=" + option + ", longOption=" + longOption
-					+ ", values=" + values + ", helpText=" + helpText
+			return "Argument [values=" + values + ", option=" + option + ", longOption=" + longOption
+					+  ", helpText=" + helpText
 					+ ", takesValue=" + takesValue + ", valueRequired="
 					+ valueRequired + ", isParam=" + isParam + ", requiredArg="
 					+ requiredArg + ", multipleAllowed=" + multipleAllowed
