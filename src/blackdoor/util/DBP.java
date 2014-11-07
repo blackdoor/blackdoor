@@ -131,6 +131,18 @@ public class DBP {
 	public static void printdebugln(Object e) {
 		printdebug(e.toString() + '\n');
 	}
+	
+	/**
+	 * Identical to calling Exception.printStackTrace() except with the DBP timestamp and [ERROR] prefix. 
+	 * Printed to default output or stderror or not at all according to settings for DBP ERROR
+	 * @param e the Exception object to print
+	 */
+	public static void printException(Exception e){
+        printerrorln(e);     
+        for(StackTraceElement elem : e.getStackTrace()){
+			printerrorln("\tat " + elem);
+		}
+	}
 
 	/**
 	 * Use this method to print any errors. Try to make error output easily
@@ -141,15 +153,19 @@ public class DBP {
 	public static void printerror(Object e) {
 		PrintStream o;
 		initSingleton();
-		if(ERROR_AS_SYSTEM_ERROR)
-			o = System.err;
-		else
-			o = singleton.out;
+		o = getErrorStream();
 		print(e, "ERROR", ERROR, o);
 	}
 
 	public static void printerrorln(Object e) {
 		printerror(e.toString() + '\n');
+	}
+	
+	private static PrintStream getErrorStream(){
+		if(ERROR_AS_SYSTEM_ERROR)
+			return System.err;
+		else
+			return singleton.out;
 	}
 
 	/**

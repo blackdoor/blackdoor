@@ -35,6 +35,7 @@ import javax.xml.bind.DatatypeConverter;
 
 
 
+
 import blackdoor.auth.AuthTicket;
 import blackdoor.crypto.SHE;
 import blackdoor.crypto.Hash;
@@ -122,7 +123,7 @@ public class Test {
 		
 		Map out = clp.parseArgs(test1);
 		
-			System.out.println(clp.getHelpText());
+		System.out.println(clp.getHelpText());
 		
 		System.out.println(out.keySet());
 		System.out.println(out.entrySet());
@@ -130,7 +131,7 @@ public class Test {
 		
 	}
 	
-	public static void DBPTest(){
+	public static void DBPTest() throws Exception{
 		DBP.DEBUG = true;
 		DBP.DEMO = true;
 		DBP.DEV = true;
@@ -145,9 +146,14 @@ public class Test {
 		DBP.printdebugln("test line" + 5);
 		DBP.printdemoln("demo");
 		DBP.printdevln("dev");
-		
-		DBP.printwarningln("warning");
-		DBP.printlogln("log");
+		try{
+			throw new Exception("message");
+		}catch (Exception e){
+			DBP.printException(e);
+		}
+
+		//DBP.printwarningln("warning");
+		//DBP.printlogln("log");
 	}
 	
 	public static void castTest(Object x){
