@@ -74,7 +74,7 @@ public class Test {
 		//cryptoTest();
 
 
-		DBPTest();
+		//DBPTest();
 		commandLineParserTest();
 		//bitCounterTest();
 		
@@ -110,14 +110,14 @@ public class Test {
 		clp.setExecutableName("test.jar");
 		clp.addArgument(new Argument().setOption("I").setLongOption("include-directories").setValueHint("number").setHelpText("zzasdjf a;lksdjf a;lskdjf a;lskd jfalsk extensions."));
 		clp.addArgument(new Argument().setOption("help").setLongOption("help"));
-		Argument param = new Argument().setParam(true).setMultipleAllowed(false).setTakesValue(false).setLongOption("subcommand").setRequiredArg(true);
+		Argument param = new Argument().setParam(true).setMultipleAllowed(true).setTakesValue(false).setLongOption("subcommand").setRequiredArg(true);
 		clp.addArgument(param);
 		clp.setUsageHint("this is the usage hint");
 		System.out.println(param);
 		clp.setProgramDescription("cqbe is a hypercube thing \n you can also use JOIN, CERT CREATE, etc");
 		String test1[] = new String[] {
 				//"source.txt", "dest.txt", 
-				"create",
+				"create", "booger",
 				"--help", "-r", "--file", "out.txt", "-fl", "-b"
 				};
 		

@@ -826,13 +826,13 @@ public class CommandLineParser implements Serializable {
 		}
 	}
 
-	public class InvalidFormatException extends Exception {
+	public static class InvalidFormatException extends Exception {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = -4262637859491086870L;
 
-		InvalidFormatException(String s) {
+		public InvalidFormatException(String s) {
 			super(s);
 		}
 	}
