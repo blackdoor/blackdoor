@@ -13,7 +13,7 @@ public class Misc {
 	
 	public static final char NULL = '\u0000';
 	/**
-	 * 
+	 * Note, uses Big-endian, so if a is larger than b, then b will have padded 0's on the larger indexed side of the byte array
 	 * @param a
 	 * @param b
 	 * @return The Hamming distance between a and b
@@ -24,7 +24,7 @@ public class Misc {
 		for(i = 0; i < Math.min(a.length, b.length); i++){
 			d += bitCount((byte) (a[i]^b[i]));
 		}
-		System.out.println(i < Math.max(a.length, b.length));
+		//System.out.println(i < Math.max(a.length, b.length));
 		for(i = i; i < Math.max(a.length, b.length); i++){
 			d += bitCount(
 					a.length > b.length
@@ -105,7 +105,6 @@ public class Misc {
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
 	}
 	
-	@Deprecated
 	public static String getHexBytes(byte[] in, String space){
 		String hexChars = "";
 		int v;
