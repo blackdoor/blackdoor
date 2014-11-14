@@ -12,7 +12,6 @@ import javax.xml.bind.DatatypeConverter;
 public class Misc {
 	
 	public static final char NULL = '\u0000';
-	
 	/**
 	 * 
 	 * @param a
@@ -108,22 +107,15 @@ public class Misc {
 	
 	@Deprecated
 	public static String getHexBytes(byte[] in, String space){
-		return DatatypeConverter.printHexBinary(in);
-//		String out = "";
-//		int tmp;
-//		for(int i = 0; i < in.length; i++){
-//			if(in[i] < 0){
-//
-//				tmp = Math.abs(in[i]) + 127;
-//			}
-//			else tmp = in[i];
-//			if(tmp < 16)
-//				out += "0";
-//			out += Integer.toHexString(tmp).toUpperCase() + space;
-//		}
-//		if(space.equals(""))
-//			return out.substring(0, out.length());
-//		return out.substring(0, out.length()-1);
+		String hexChars = "";
+		int v;
+		for ( int j = 0; j < in.length; j++ ) {
+			v = in[j] & 0xFF;
+			hexChars += hexArray[v >>> 4];
+			hexChars += hexArray[v & 0x0F];
+			hexChars += space;
+		}
+		return hexChars.substring(0, hexChars.length() - space.length());
 	}
 	
 	/**
