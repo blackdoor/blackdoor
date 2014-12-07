@@ -6,6 +6,7 @@ package blackdoor.util;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.Calendar;
+import java.util.Scanner;
 
 /**
  * DeBugPrint. A class that allows output to be categorized before being
@@ -104,12 +105,23 @@ public class DBP {
 	private static void print(Object e, String mode, boolean flag, PrintStream o) {
 
 		Calendar cal;
-		String out;
+		String out = "";
+		String header;
+		Scanner s;
 		if (flag || VERBOSE) {
 			cal = Calendar.getInstance();
-			out = "[" + String.format("%1$tH:%1$tM:%1$tS", cal) + ']';
-			out += String.format("[%-7s] ", mode);// "[" + mode + "]\t";
-			out += "" + e;
+			header = "[" + String.format("%1$tH:%1$tM:%1$tS", cal) + ']';
+			header += String.format("[%-7s] ", mode);
+			s = new Scanner(e.toString());
+			while(s.hasNextLine()){
+				out += header;
+				out += s.nextLine();
+				out += "\n";
+			}
+			
+			//out = "[" + String.format("%1$tH:%1$tM:%1$tS", cal) + ']';
+			//out += String.format("[%-7s] ", mode);// "[" + mode + "]\t";
+			//out += "" + e;
 			o.print(out);
 			if (LOG_ALL && !mode.equals("LOG")) {
 				initSingleton();

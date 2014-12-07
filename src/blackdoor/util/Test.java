@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Scanner;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -28,6 +29,7 @@ import javax.swing.text.PlainDocument;
 import javax.xml.bind.DatatypeConverter;
 
 //import org.apache.commons.io.FileUtils;
+
 
 
 
@@ -72,10 +74,16 @@ public class Test {
 		//fileHashTest();
 		//ticketTest();
 		//cryptoTest();
-
-
-		//DBPTest();
-		commandLineParserTest();
+		Scanner s = new Scanner("this is a line\nwith a line below it\n");
+		while(s.hasNextLine()){
+			System.out.println(s.nextLine());
+		}
+		System.out.print("-.-");
+		
+		DBPTest();
+		
+		//commandLineParserTest();
+		
 		//bitCounterTest();
 		
 		//SHEStreamTest();
@@ -145,6 +153,7 @@ public class Test {
 		DBP.toggleDebug();
 		DBP.printdebugln("test line" + 5);
 		DBP.printdemoln("demo");
+		DBP.printdemo("multi line\n(cont)demo message");
 		DBP.printdevln("dev");
 		try{
 			throw new Exception("message");
