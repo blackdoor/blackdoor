@@ -35,6 +35,21 @@ public class Misc {
 	}
 	
 	/**
+	 * Convert the bytes of an IPv4 address to an "IPv4-mapped IPv6 address" according to RFC2373
+	 * @param v4 32 bits representing an IPv4 address
+	 * @return 16 bytes representing an IPv4-mapped IPv6 address for v4
+	 */
+	public static byte[] v426(byte[] v4){
+		if(v4.length != 4){
+			throw new RuntimeException("v4 must be 4 bytes that represent an IPv4 address.");
+		}
+		byte[] v6 = new byte[16];
+		System.arraycopy(v4, 0, v6, 12, 4);
+		System.arraycopy(new byte[]{(byte) 0xff, (byte) 0xff}, 0, v6, 10, 2);
+		return v6;
+	}
+	
+	/**
 	 * Same as getHammingDistance but uses java's BitSet class
 	 * Probably not as quick as getHammingDistance
 	 * @param a
