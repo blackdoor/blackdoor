@@ -2,12 +2,14 @@ package blackdoor.net;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import blackdoor.net.ServerThread.ServerThreadBuilder;
 import blackdoor.util.DBP;
 
 /**
@@ -24,6 +26,7 @@ public class Server implements Runnable {
 	private ServerSocket serverSocket;
 	private boolean running = false;
 	private ThreadPoolExecutor pool;
+	private ServerThreadBuilder threadBuilder;
 	private BlockingQueue<Runnable> blockingQueue;
 	private Thread runningThread = null;
 	private final int QUEUE_SIZE = 256;// ?
@@ -32,8 +35,8 @@ public class Server implements Runnable {
 	 * Initialize from configuration file settings.
 	 * <p>
 	 */
-	public Server() {
-		this(DEFAULT_PORT);
+	public Server(ServerThreadBuilder builder) {
+		this(builder, DEFAULT_PORT);
 	}
 
 	/**
@@ -41,19 +44,20 @@ public class Server implements Runnable {
 	 * 
 	 * @param port
 	 */
-	public Server(int port) {
+	public Server(ServerThreadBuilder builder, int port) {
 		this.port = port;
 		blockingQueue = new ArrayBlockingQueue<Runnable>(QUEUE_SIZE);
 		pool = getPool();
+		this.threadBuilder = builder;
 	}
 
 	/*
 	 * Use For testing.
 	 */
 	public static void main(String[] args) {
-		DBP.DEV = true;
-		Server server = new Server();
-		new Thread(server).start();
+		DBP.VERBOSE = true;
+		Server server = new Server(new EchoThread.EchoThreadBuilder());
+		server.run();
 	}
 
 	/**
@@ -70,7 +74,9 @@ public class Server implements Runnable {
 		openServerSocket();
 		while (this.isRunning()) {
 			try {
-				pool.execute(new ServerThread(this.serverSocket.accept()));
+				Socket sock = this.serverSocket.accept();
+				ServerThread thread = threadBuilder.build(sock);
+				pool.execute(thread);
 			} catch (IOException e) {
 				DBP.printerror("Could not accept socket connection!");
 				DBP.printException(e);
