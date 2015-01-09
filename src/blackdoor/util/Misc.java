@@ -25,7 +25,6 @@ public class Misc {
 		for(i = 0; i < Math.min(a.length, b.length); i++){
 			d += bitCount((byte) (a[i]^b[i]));
 		}
-		System.out.println(i < Math.max(a.length, b.length));
 		for(i = i; i < Math.max(a.length, b.length); i++){
 			d += bitCount(
 					a.length > b.length
