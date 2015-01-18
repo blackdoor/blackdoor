@@ -28,7 +28,6 @@ public class Server implements Runnable {
 	private ThreadPoolExecutor pool;
 	private ServerThreadBuilder threadBuilder;
 	private BlockingQueue<Runnable> blockingQueue;
-	private Thread runningThread = null;
 	private final int QUEUE_SIZE = 256;// ?
 
 	/**
@@ -68,15 +67,13 @@ public class Server implements Runnable {
 	@Override
 	public void run() {
 		running = true;
-		synchronized (this) {
-			this.runningThread = Thread.currentThread();
-		}
 		openServerSocket();
 		while (this.isRunning()) {
 			try {
 				Socket sock = this.serverSocket.accept();
 				ServerThread thread = threadBuilder.build(sock);
-				pool.execute(thread);
+				if(thread != null)
+					pool.execute(thread);
 			} catch (IOException e) {
 				DBP.printerror("Could not accept socket connection!");
 				DBP.printException(e);
