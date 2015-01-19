@@ -12,9 +12,8 @@ import javax.xml.bind.DatatypeConverter;
 public class Misc {
 	
 	public static final char NULL = '\u0000';
-	
 	/**
-	 * 
+	 * Note, uses Big-endian, so if a is larger than b, then b will have padded 0's on the larger indexed side of the byte array
 	 * @param a
 	 * @param b
 	 * @return The Hamming distance between a and b
@@ -32,6 +31,21 @@ public class Misc {
 					: b[i]);
 		}
 		return d;
+	}
+	
+	/**
+	 * Convert the bytes of an IPv4 address to an "IPv4-mapped IPv6 address" according to RFC2373
+	 * @param v4 32 bits representing an IPv4 address
+	 * @return 16 bytes representing an IPv4-mapped IPv6 address for v4
+	 */
+	public static byte[] v426(byte[] v4){
+		if(v4.length != 4){
+			throw new RuntimeException("v4 must be 4 bytes that represent an IPv4 address.");
+		}
+		byte[] v6 = new byte[16];
+		System.arraycopy(v4, 0, v6, 12, 4);
+		System.arraycopy(new byte[]{(byte) 0xff, (byte) 0xff}, 0, v6, 10, 2);
+		return v6;
 	}
 	
 	/**
@@ -105,24 +119,16 @@ public class Misc {
 	    System.out.println("Total Memory:" + runtime.totalMemory() / mb);
 	}
 	
-	@Deprecated
 	public static String getHexBytes(byte[] in, String space){
-		return DatatypeConverter.printHexBinary(in);
-//		String out = "";
-//		int tmp;
-//		for(int i = 0; i < in.length; i++){
-//			if(in[i] < 0){
-//
-//				tmp = Math.abs(in[i]) + 127;
-//			}
-//			else tmp = in[i];
-//			if(tmp < 16)
-//				out += "0";
-//			out += Integer.toHexString(tmp).toUpperCase() + space;
-//		}
-//		if(space.equals(""))
-//			return out.substring(0, out.length());
-//		return out.substring(0, out.length()-1);
+		String hexChars = "";
+		int v;
+		for ( int j = 0; j < in.length; j++ ) {
+			v = in[j] & 0xFF;
+			hexChars += hexArray[v >>> 4];
+			hexChars += hexArray[v & 0x0F];
+			hexChars += space;
+		}
+		return hexChars.substring(0, hexChars.length() - space.length());
 	}
 	
 	/**
