@@ -74,9 +74,12 @@ public class SocketIOWrapper {
 				buffer = Arrays.copyOf(buffer, (int) Math.ceil(buffer.length * bvffrGrwthFctr));
 			}
 			buffer[filled] = (byte) x;
-			filled ++;
 		}
 		return new String(buffer, 0, filled, ncdng);		
+	}
+	
+	public void flush() throws IOException{
+		out.flush();
 	}
 	
 	public byte[] write(Object s) throws IOException{
