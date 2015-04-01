@@ -9,11 +9,12 @@ import java.util.Arrays;
 
 public class SocketIOWrapper {
 	private Socket sock;
-	private BufferedInputStream in;
-	private OutputStream out;
+	protected BufferedInputStream in;
+	protected OutputStream out;
 	private int bvffrSz;
 	private float bvffrGrwthFctr;
 	private Charset ncdng;
+	private int maxRead = Integer.MAX_VALUE;
 	
 	public SocketIOWrapper(Socket sock) throws IOException{
 		this(sock, 0, 0, null);
@@ -36,12 +37,29 @@ public class SocketIOWrapper {
 		setEncoding(encoding == null ? Charset.forName("UTF-8") : encoding);
 	}
 	
+	
+	
+	/**
+	 * @return the maximum number of bytes which will be read in one read().
+	 */
+	public int getMaxReadSize() {
+		return maxRead;
+	}
+
+	/**
+	 * @param maxRead the maximum number of bytes which will be read in one call to read().
+	 */
+	public void setMaxReadSize(int maxRead) {
+		this.maxRead = maxRead;
+	}
+
 	/**
 	 * @return the encoding
 	 */
 	public Charset getEncoding() {
 		return ncdng;
 	}
+	
 
 	/**
 	 * @param encoding the encoding to set
@@ -70,8 +88,10 @@ public class SocketIOWrapper {
 		int x;
 		int filled;// = 0;
 		for(filled = 0; (x = in.read()) != 0 && x != -1; filled ++){
+			if(filled > maxRead)
+				throw new RambleOnException();
 			if(filled >= buffer.length){
-				buffer = Arrays.copyOf(buffer, (int) Math.ceil(buffer.length * bvffrGrwthFctr));
+				buffer = Arrays.copyOf(buffer, Math.min((int) Math.ceil(buffer.length * bvffrGrwthFctr), maxRead));
 			}
 			buffer[filled] = (byte) x;
 		}
@@ -100,6 +120,12 @@ public class SocketIOWrapper {
 	 */
 	public void close() throws IOException{
 		sock.close();
+	}
+	
+	private static class RambleOnException extends RuntimeException{
+		public RambleOnException(){
+			super("Some input appears to be larger than we are willing to accept.");
+		}
 	}
 	
 }
