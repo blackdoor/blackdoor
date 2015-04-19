@@ -5,11 +5,27 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.BitSet;
+import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 
 public class Misc {
+	
+	public static  String getISO8601ZULUTime(){
+		synchronized(ISO8601ZULU){
+			return ISO8601ZULU.format(new Date());
+		}
+	}
+	
+	public static final DateFormat ISO8601ZULU;
+	static{
+		ISO8601ZULU = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		ISO8601ZULU.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
 	
 	public static final char NULL = '\u0000';
 	/**
