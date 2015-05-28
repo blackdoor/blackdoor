@@ -1,0 +1,90 @@
+package black.door.json;
+
+import black.door.util.DBP;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Created by nfischer on 5/23/15.
+ */
+public class DeruloTest {
+
+    Map<String, Object> map;
+    Map<String, Object> simpleMap;
+    List<Object> simpleList;
+
+    @Before
+    public void setup(){
+        map = new HashMap<>();
+
+        simpleMap = new HashMap<>();
+        simpleMap.put("string", "sample");
+        simpleMap.put("int", 5l);
+        simpleMap.put("fraction", 5.5d);
+        simpleMap.put("sciNote", Double.valueOf("3.7e-5"));
+        simpleMap.put("bool", true);
+        simpleMap.put("null", JsonNull.NULL);
+
+        simpleList = new ArrayList<>();
+        simpleList.add("sample");
+        simpleList.add(5l);
+        simpleList.add(5.5d);
+        simpleList.add(Double.valueOf("3.7e-5"));
+        simpleList.add(true);
+        simpleList.add(JsonNull.NULL);
+
+        map.put("map", simpleMap);
+        map.put("array", simpleList);
+    }
+
+    @Test
+    public void testToJSON() throws Exception {
+        System.out.println(Derulo.toJSON(2,map));
+    }
+
+    @Test
+    public void fromJson(){
+        String m2 = Derulo.toJSON(map);
+        assertTrue(map.equals(Derulo.fromJSON(m2)));
+    }
+
+    @Test
+    public void testJsonObject(){
+        String m2 = Derulo.toJSON(simpleMap);
+        JsonObject parsed = new JsonObject(m2);
+        //System.out.println(Derulo.toJSON(2, parsed));
+        assertTrue(simpleMap.equals(parsed));
+    }
+
+    @Test
+    public void testJsonArray(){
+        String arr = Derulo.toJSON(simpleList);
+        JsonArray parsed = new JsonArray(arr);
+        assertTrue(simpleList.equals(parsed));
+    }
+
+    @Test
+    public void testToTokens(){
+        DBP.toggleDebug();
+        String json = Derulo.toJSON(map);
+        System.out.println(Derulo.toTokens(json));
+    }
+
+    @Test
+    public void other(){
+        JsonObject obj = new JsonObject(Derulo.toJSON(map));
+        System.out.println(obj.getArray("array"));
+        System.out.println(obj.getJsonObject("map").getFraction("sciNote"));
+        System.out.println(obj.isFieldNull("map"));
+        System.out.println(obj.getJsonObject("map").isFieldNull("null"));
+
+        int i = obj.getJsonObject("map").getInteger("int").intValue();
+    }
+}
