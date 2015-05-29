@@ -221,11 +221,12 @@ public class Derulo {
                 if(indent > 0)
                     sb.append('\n');
             }
-
-            sb.setLength(sb.length() - 1);
-            if(indent > 0) {
+            if(!map.isEmpty()) {
                 sb.setLength(sb.length() - 1);
-                sb.append('\n');
+                if (indent > 0) {
+                    sb.setLength(sb.length() - 1);
+                    sb.append('\n');
+                }
             }
             sb.append(getIndents(indent * (indentLevel -1)) + "}");
 
@@ -242,10 +243,12 @@ public class Derulo {
                 if(indent > 0)
                     sb.append('\n');
             }
-            sb.setLength(sb.length() - 1);
-            if(indent > 0) {
+            if(!collection.isEmpty()) {
                 sb.setLength(sb.length() - 1);
-                sb.append('\n');
+                if (indent > 0) {
+                    sb.setLength(sb.length() - 1);
+                    sb.append('\n');
+                }
             }
             sb.append(getIndents(indent * (indentLevel -1)) + "]");
 

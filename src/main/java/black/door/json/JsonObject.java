@@ -31,6 +31,8 @@ public class JsonObject extends HashMap<String, Object> implements JsonSerializa
     protected void fromIterator(Iterator<Token> i){
         //i starts inside the open curl
         for(Token token = i.next(); i.hasNext(); token = i.next()){
+            if(token == SyntaxToken.CLOSE_CURL)
+                return;
             if(!(token instanceof StringToken))
                 throw new JsonException("Expected field key string, found " + token.getContent());
             Token colon = i.next();

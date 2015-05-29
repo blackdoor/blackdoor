@@ -129,9 +129,9 @@ public class Misc {
 	
 	
 	/**
-	 * 
-	 * @author: Viral Patel
-	 * @description: Prints JVM memory utilization statistics
+	 * Prints JVM memory utilization statistics
+	 * author: Viral Patel
+	 *
 	 * @param runtime
 	 */
 	public static void PrintMemInfo(Runtime runtime){

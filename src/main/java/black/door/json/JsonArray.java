@@ -37,6 +37,8 @@ public class JsonArray extends ArrayList<Object> implements JsonSerializable{
 
     protected void fromIterator(Iterator<Token> i){
         for(Token next = i.next(); i.hasNext(); next = i.next()){
+            if(next == SyntaxToken.CLOSE_SQUARE)
+                return;
             if(next instanceof ValueToken || next instanceof StringToken)
                 this.add(Derulo.fromJSONToken(next));
             if(next == SyntaxToken.OPEN_CURL) {
@@ -53,7 +55,7 @@ public class JsonArray extends ArrayList<Object> implements JsonSerializable{
             if(commaOrBracket == SyntaxToken.CLOSE_SQUARE)
                 break;
             if(commaOrBracket != SyntaxToken.COMMA)
-                throw new JsonException("Missing comma or closing square bracket");
+                throw new JsonException("Expected comma or closing square bracket. Found " + commaOrBracket.getContent() + " instead.");
         }
     }
 

@@ -4,10 +4,7 @@ import black.door.util.DBP;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +28,7 @@ public class DeruloTest {
         simpleMap.put("sciNote", Double.valueOf("3.7e-5"));
         simpleMap.put("bool", true);
         simpleMap.put("null", JsonNull.NULL);
+        simpleMap.put("emptyList", new ArrayList<>());
 
         simpleList = new ArrayList<>();
         simpleList.add("sample");
@@ -39,9 +37,10 @@ public class DeruloTest {
         simpleList.add(Double.valueOf("3.7e-5"));
         simpleList.add(true);
         simpleList.add(JsonNull.NULL);
-
+        
         map.put("map", simpleMap);
         map.put("array", simpleList);
+        map.put("emptyMap", new HashMap<>());
     }
 
     @Test
@@ -58,7 +57,7 @@ public class DeruloTest {
     @Test
     public void testJsonObject(){
         String m2 = Derulo.toJSON(simpleMap);
-        JsonObject parsed = new JsonObject(m2);
+        Map parsed = new JsonObject(m2);
         //System.out.println(Derulo.toJSON(2, parsed));
         assertTrue(simpleMap.equals(parsed));
     }
@@ -66,7 +65,8 @@ public class DeruloTest {
     @Test
     public void testJsonArray(){
         String arr = Derulo.toJSON(simpleList);
-        JsonArray parsed = new JsonArray(arr);
+        List parsed = new JsonArray(arr);
+        //System.out.println(Derulo.toJSON(4, parsed));
         assertTrue(simpleList.equals(parsed));
     }
 
@@ -80,8 +80,8 @@ public class DeruloTest {
     @Test
     public void other(){
         JsonObject obj = new JsonObject(Derulo.toJSON(map));
-        System.out.println(obj.getArray("array"));
-        System.out.println(obj.getJsonObject("map").getFraction("sciNote"));
+        System.out.println("Array " + obj.getArray("array"));
+        System.out.println("scientific notation " +obj.getJsonObject("map").getFraction("sciNote"));
         System.out.println(obj.isFieldNull("map"));
         System.out.println(obj.getJsonObject("map").isFieldNull("null"));
 

@@ -360,7 +360,7 @@ public class CommandLineParser implements Serializable {
 				}
 			}
 		}
-		if (!line.equals(lines.get(lines.size() - 1)) && !line.equals(""))
+		if ((!lines.isEmpty() && !line.equals(lines.get(lines.size() - 1))) && !line.equals(""))
 			lines.add(line);
 
 		firstLine = true;
