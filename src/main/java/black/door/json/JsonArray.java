@@ -135,7 +135,8 @@ public class JsonArray extends ArrayList<Object> implements JsonSerializable{
             sb.append(Derulo.toJSON(item));
             sb.append(",");
         }
-        sb.setLength(sb.length() - 1);
+        if(sb.lastIndexOf("[") != sb.length() -1)
+            sb.setLength(sb.length() -1);
         sb.append("]");
         return sb.toString();
     }

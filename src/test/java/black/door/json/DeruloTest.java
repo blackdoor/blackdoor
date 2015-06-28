@@ -24,8 +24,8 @@ public class DeruloTest {
         simpleMap = new HashMap<>();
         simpleMap.put("string", "sample");
         simpleMap.put("int", 5l);
-        simpleMap.put("fraction", 5.5d);
-        simpleMap.put("sciNote", Double.valueOf("3.7e-5"));
+        simpleMap.put("fraction", 5.50d);
+        simpleMap.put("sciNote", Double.valueOf("3.7e-4"));
         simpleMap.put("bool", true);
         simpleMap.put("null", JsonNull.NULL);
         simpleMap.put("emptyList", new ArrayList<>());
@@ -34,7 +34,7 @@ public class DeruloTest {
         simpleList.add("sample");
         simpleList.add(5l);
         simpleList.add(5.5d);
-        simpleList.add(Double.valueOf("3.7e-5"));
+        simpleList.add(Double.valueOf("9.3e-200"));
         simpleList.add(true);
         simpleList.add(JsonNull.NULL);
         
@@ -46,6 +46,7 @@ public class DeruloTest {
     @Test
     public void testToJSON() throws Exception {
         System.out.println(Derulo.toJSON(2,map));
+        System.out.println(Derulo.toJSON(map));
     }
 
     @Test

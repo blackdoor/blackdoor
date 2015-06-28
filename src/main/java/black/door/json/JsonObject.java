@@ -15,7 +15,7 @@ import java.util.*;
  * typed retrieval methods for convenience.
  *
  */
-public class JsonObject extends HashMap<String, Object> implements JsonSerializable{
+public class JsonObject extends LinkedHashMap<String, Object> implements JsonSerializable{
 
     public JsonObject(){}
 
@@ -137,6 +137,7 @@ public class JsonObject extends HashMap<String, Object> implements JsonSerializa
     @Override
     public String toJSONString() {
         StringBuilder sb = new StringBuilder();
+        sb.append('{');
         for (Map.Entry e : this.entrySet()) {
             sb.append("\"");
             sb.append(e.getKey().toString());
@@ -144,8 +145,8 @@ public class JsonObject extends HashMap<String, Object> implements JsonSerializa
             sb.append(Derulo.toJSON(e.getValue()));
             sb.append(",");
         }
-
-        sb.setLength(sb.length() - 1);
+        if(sb.lastIndexOf("{") != sb.length() -1)
+            sb.setLength(sb.length() - 1);
         sb.append("}");
         return sb.toString();
     }
