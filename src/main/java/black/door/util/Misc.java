@@ -13,6 +13,8 @@ import java.util.TimeZone;
 
 public class Misc {
 
+	public static final String CLRF = "\r\n";
+
 	public static String arrayToString(Object[] array){
 		StringBuilder sb = new StringBuilder();
 		sb.append("[ ");

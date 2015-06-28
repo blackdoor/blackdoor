@@ -6,7 +6,7 @@
 
     <groupId>black.door</groupId>
     <artifactId>blackdoor-lib</artifactId>
-    <version>v4r1t1</version>
+    <version>v4r2t0</version>
     <packaging>jar</packaging>
 
     <name>blackdoor library</name>
