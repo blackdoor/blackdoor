@@ -1,4 +1,4 @@
-package black.door.net;
+package black.door.net.server;
 
 import black.door.util.DBP;
 

@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +17,13 @@ public class HttpRequest implements HttpMessage{
 
     private Map<String, String> headers;
     private HttpVerb verb;
-    private URI uri;
+    private URL url;
     private String version;
     private byte[] body;
 
-    public HttpRequest(HttpVerb method, URI uri, String version){
+    public HttpRequest(HttpVerb method, URL url, String version){
         this.verb = method;
-        this.uri = uri;
+        this.url = url;
         this.version = version;
         headers = new HashMap<>();
     }
@@ -42,7 +42,7 @@ public class HttpRequest implements HttpMessage{
 
         String[] split = firstLine.split("\\s+");
         verb = HttpVerb.valueOf(split[0]);
-        uri = new URI(split[1]);
+        url = new URL(split[1]);
         version = split[2];
 
         headers = ParseTools.parseHeaders(is);
@@ -73,12 +73,12 @@ public class HttpRequest implements HttpMessage{
         this.verb = verb;
     }
 
-    public URI getUri() {
-        return uri;
+    public URL getUrl() {
+        return url;
     }
 
-    public void setUri(URI uri) {
-        this.uri = uri;
+    public void setUrl(URL uri) {
+        this.url = uri;
     }
 
     public String getVersion() {
@@ -105,7 +105,7 @@ public class HttpRequest implements HttpMessage{
         StringBuilder sb = new StringBuilder();
         sb.append(verb);
         sb.append(" ");
-        sb.append(uri.toString());
+        sb.append(url.toString());
         sb.append(" ");
         sb.append(version);
         sb.append("\n");

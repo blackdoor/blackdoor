@@ -11,6 +11,7 @@ import java.util.Map;
  * Created by nfischer on 6/10/15.
  */
 public abstract class ParseTools {
+
     public static Map<String, String> parseHeaders(InputStream is) throws IOException {
         Map<String, String> headers = new HashMap<>();
 
