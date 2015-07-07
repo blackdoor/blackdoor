@@ -191,7 +191,7 @@ public class Derulo {
             Method toJsonString = object.getClass().getMethod("toJSONString");
             toJsonString.setAccessible(true);
             return toJsonString.invoke(object).toString();
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | NullPointerException e) {
             //none
         } catch (InvocationTargetException e) {
             e.printStackTrace();
