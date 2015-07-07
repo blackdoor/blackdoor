@@ -47,6 +47,9 @@ public class DeruloTest {
     public void testToJSON() throws Exception {
         System.out.println(Derulo.toJSON(2,map));
         System.out.println(Derulo.toJSON(map));
+        System.out.println(Derulo.fromJSON("546"));
+        System.out.println(Derulo.fromJSON("false"));
+
     }
 
     @Test

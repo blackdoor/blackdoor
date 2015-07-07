@@ -141,7 +141,7 @@ public class Derulo {
                     StringBuilder sb = new StringBuilder();
                     for(; !Character.isWhitespace(c) && c != ',' && c != '}' && c != ']'; c = i.next()) {
                         if (c == StringCharacterIterator.DONE)
-                            throw new RuntimeException();
+                            break;
                         sb.append(c);
                     }
                     i.previous();
