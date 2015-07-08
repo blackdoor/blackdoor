@@ -1,8 +1,9 @@
-package black.door.net;
+package black.door.net.server;
 
 import java.io.IOException;
 import java.net.Socket;
 
+import black.door.net.SocketIOWrapper;
 import black.door.util.DBP;
 
 public class EchoThread implements ServerThread {
