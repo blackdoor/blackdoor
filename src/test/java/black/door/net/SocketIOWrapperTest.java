@@ -18,7 +18,7 @@ public class SocketIOWrapperTest {
 
 	@Before
 	public void setUp() throws Exception {
-		ss = new ServerSocket(12345);
+		ss = new ServerSocket(1234);
 		new Thread() {
 			public void run() {
 				try {
@@ -26,11 +26,12 @@ public class SocketIOWrapperTest {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					throw new RuntimeException(e.getCause());
 				}
 			}
 		}.start();
 
-		io2 = new SocketIOWrapper(new Socket(InetAddress.getLoopbackAddress(), 12345));
+		io2 = new SocketIOWrapper(new Socket(InetAddress.getLoopbackAddress(), 1234));
 
 	}
 

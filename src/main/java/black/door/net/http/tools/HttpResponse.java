@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class HttpResponse implements HttpMessage{
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
         this.headers = new HashMap<>();
+        body = new byte[0];
     }
 
     public HttpResponse(byte[] response) throws IOException {
@@ -41,7 +43,7 @@ public class HttpResponse implements HttpMessage{
 
         this.headers = parseHeaders(stream);
 
-        this.body = ParseTools.getBody(stream, headers);
+        this.body = ParseTools.getBody(stream, headers, -1);
     }
 
     public HttpResponse putHeader(String key, String value){
@@ -50,6 +52,10 @@ public class HttpResponse implements HttpMessage{
     }
 
     @Override
+    public String getHeader(String headerName) {
+        return headers.get(headerName);
+    }
+
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -90,9 +96,10 @@ public class HttpResponse implements HttpMessage{
 
     public void setBody(byte[] body) {
         this.body = body;
+        putHeader("Content-Length", String.valueOf(body.length));
     }
 
-    public String toString(){
+    private String getLine1(){
         StringBuilder sb = new StringBuilder();
         sb.append(version);
         sb.append(" ");
@@ -100,7 +107,11 @@ public class HttpResponse implements HttpMessage{
         sb.append(" ");
         sb.append(statusMessage);
         sb.append('\n');
+        return sb.toString();
+    }
 
+    private String getHeaderString(){
+        StringBuilder sb = new StringBuilder();
         for(Map.Entry<String, String> header : headers.entrySet()){
             sb.append(header.getKey());
             sb.append(": ");
@@ -108,9 +119,31 @@ public class HttpResponse implements HttpMessage{
             sb.append('\n');
         }
         sb.append('\n');
+        return sb.toString();
+    }
+
+    public byte[] serialize(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(getLine1());
+        sb.append(getHeaderString());
+        byte[] top = sb.toString().getBytes(StandardCharsets.ISO_8859_1);
+        if(body != null){
+            byte[] serial = Arrays.copyOf(top, top.length + body.length);
+            System.arraycopy(body, 0, serial, top.length, body.length);
+            return serial;
+        }else{
+            return top;
+        }
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(getLine1());
+
+        sb.append(getHeaderString());
 
         if(body != null)
-            sb.append(new String(body, StandardCharsets.US_ASCII));
+            sb.append(new String(body, StandardCharsets.ISO_8859_1));
 
         return sb.toString();
     }

@@ -5,9 +5,11 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import black.door.net.server.EchoThread;
+import black.door.net.server.Server;
 import org.junit.Test;
 
-import black.door.net.ServerThread.ServerThreadBuilder;
+import black.door.net.server.ServerThread.ServerThreadBuilder;
 
 public class ServerTest {
 
