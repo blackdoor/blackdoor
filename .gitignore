@@ -211,10 +211,8 @@ pip-log.txt
 # Mac crap
 .DS_Store
 
-/bin1/*
 
 /bin1/
-*.log
 
 #maven
 target/
@@ -228,3 +226,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 settings.xml
+
+#floobits
+.floo
+.flooignore

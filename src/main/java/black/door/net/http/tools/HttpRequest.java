@@ -1,5 +1,6 @@
 package black.door.net.http.tools;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,14 +29,17 @@ public class HttpRequest implements HttpMessage{
         headers = new HashMap<>();
     }
 
+    @Deprecated
     public HttpRequest(Socket sock) throws IOException, URISyntaxException {
-        this(sock.getInputStream());
+        this(new BufferedInputStream(sock.getInputStream()));
     }
 
+    @Deprecated
     public HttpRequest(byte[] request) throws IOException, URISyntaxException {
         this(new ByteArrayInputStream(request));
     }
 
+    @Deprecated
     public HttpRequest(InputStream is) throws IOException, URISyntaxException {
 
         String firstLine = ParseTools.nextLine(is);
@@ -47,8 +51,34 @@ public class HttpRequest implements HttpMessage{
 
         headers = ParseTools.parseHeaders(is);
 
-        body = ParseTools.getBody(is, headers);
+        body = ParseTools.getBody(is, headers, 8192);
 
+    }
+
+    public static HttpRequest parse(InputStream is, int maxBodySize) throws IOException, URISyntaxException, HttpParsingException {
+        HttpVerb verb;
+        URI uri;
+        String version;
+        Map<String, String> headers;
+
+        String firstLine = ParseTools.nextLine(is);
+
+        String[] split = firstLine.split("\\s+");
+        if(split.length < 3)
+            throw new HttpParsingException("Request line does not have 3 parts as described in RFC2616 5.1");
+
+        verb = HttpVerb.valueOf(split[0]);
+        uri = new URI(split[1]);
+        version = split[2];
+
+        headers = ParseTools.parseHeaders(is);
+
+        byte[] body = ParseTools.getBody(is, headers, maxBodySize);
+
+        HttpRequest ret = new HttpRequest(verb, uri, version);
+        ret.setBody(body);
+
+        return ret;
     }
 
     public HttpRequest putHeader(String headerName, String value){
@@ -56,7 +86,10 @@ public class HttpRequest implements HttpMessage{
         return this;
     }
 
-    @Override
+    public String getHeader(String headerName){
+        return headers.get(headerName);
+    }
+
     public Map<String, String> getHeaders() {
         return headers;
     }

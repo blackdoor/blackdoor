@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,27 @@ public class Misc {
 	static{
 		ISO8601ZULU = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		ISO8601ZULU.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+
+	/**
+	 *
+	 * @param c
+	 * @return the zero parameter constructor for c (or null if something weird happens)
+	 * @throws SecurityException if the zero param constructor could not be made accessible
+	 */
+	public static Constructor getZeroParamConstructor(Class c) throws SecurityException, NoSuchMethodException {
+		Constructor[] constructors = c.getConstructors();
+
+		for(Constructor con :constructors){
+			if(con.getParameterCount() == 0){
+				if(! con.isAccessible()){
+					con.setAccessible(true);
+				}
+				return con;
+			}
+		}
+
+		throw new NoSuchMethodException("Could not find a zero parameter constructor for " + c.getCanonicalName());
 	}
 	
 	public static final char NULL = '\u0000';

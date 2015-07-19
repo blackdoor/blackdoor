@@ -1,10 +1,15 @@
 package black.door.net.http.tools;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+
+import static org.junit.Assert.fail;
 
 /**
  * Created by nfischer on 6/9/15.
@@ -46,7 +51,12 @@ public class HttpTest {
         String get = "GET /path/file.html HTTP/1.0\n" +
                 "From: someuser@jmarshall.com\n" +
                 "User-Agent: HTTPTool/1.0\n\n";
-        System.out.println(new HttpRequest(get.getBytes(StandardCharsets.US_ASCII)));
+        InputStream is = new BoundedInputStream(new ByteArrayInputStream(get.getBytes(StandardCharsets.US_ASCII)), 20);
+        try {
+            System.out.println(HttpRequest.parse(is, -1));
+            fail();
+        }catch (HttpParsingException e){}
+        System.out.println(HttpRequest.parse(new ByteArrayInputStream(get.getBytes(StandardCharsets.US_ASCII)), -1));
 
         String post = "POST /path/script.cgi HTTP/1.0\n" +
                 "From: frog@jmarshall.com\n" +
