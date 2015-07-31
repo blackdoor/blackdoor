@@ -14,6 +14,8 @@ import java.util.regex.Pattern;
  */
 public abstract class URLTools {
 
+	private static Pattern theRegex = Pattern.compile("((?<field>[\\w\\-\\.~%!$'\\(\\)*+,/?:@]+)=?(?<value>[\\w\\-\\.~%!$'\\(\\)*+,/?:@]*))");
+
 	public static Map<String, String> parseQueries(URL url){
 		try {
 			return parseQueries(url.getQuery());
@@ -76,7 +78,7 @@ public abstract class URLTools {
 	}
 
 	private static Pattern getRegex(){
-		return Pattern.compile("((?<field>[\\w+%*\\-\\.]+)=?(?<value>[\\w+%*\\-\\.]*))");
+		return theRegex;
 	}
 
 }
