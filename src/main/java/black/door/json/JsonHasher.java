@@ -78,6 +78,8 @@ public class JsonHasher {
 	}
 
 	protected static CharSequence canonicalize(Object obj){
+		if(obj == null)
+			return "null";
 		if(obj instanceof Map)
 			return canonicalize((Map) obj);
 		if(obj instanceof Collection)
