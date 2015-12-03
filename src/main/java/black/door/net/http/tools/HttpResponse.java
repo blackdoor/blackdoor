@@ -14,6 +14,7 @@ import static black.door.net.http.tools.ParseTools.parseHeaders;
 /**
  * Created by nfischer on 6/10/15.
  */
+@Deprecated
 public class HttpResponse implements HttpMessage{
     private Map<String, String> headers;
     private int statusCode;

@@ -8,11 +8,9 @@ import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.BitSet;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
-public class Misc {
+public abstract class Misc {
 
 	public static final String CLRF = "\r\n";
 
@@ -331,4 +329,38 @@ public class Misc {
 	public static long longBMP(long a, long b, long c){
 		return BigInteger.valueOf(a).modPow(BigInteger.valueOf(b), BigInteger.valueOf(c)).longValue();
 	}
+
+	@SafeVarargs
+	public static <T> T[] array(T... array){
+		return array;
+	}
+
+	@SafeVarargs
+	public static <T> List<T> list(T... list){
+		return Arrays.asList(list);
+	}
+
+	@SafeVarargs
+	public static <T> Set<T> set(T... set){
+		return new HashSet<>(list(set));
+	}
+
+	public static void print(Object o){
+		System.out.print(o);
+	}
+
+	public static void println(Object o){
+		System.out.println(o);
+	}
+
+	public static void require(boolean r){
+		if(!r)
+			throw new IllegalArgumentException();
+	}
+
+	public static void require(boolean r, CharSequence message){
+		if(!r)
+			throw new IllegalArgumentException(message.toString());
+	}
+
 }

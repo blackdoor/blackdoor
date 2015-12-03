@@ -17,8 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * redirected at runtime. The default output for most categories is System.out
  * 
  * @author nfischer3
- * 
+ * @deprecated deprecated in favor of package at https://github.com/blackdoor/DBP
  */
+@Deprecated
 public enum DBP {
 	INSTANCE;
 	
