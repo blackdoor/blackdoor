@@ -230,3 +230,5 @@ settings.xml
 #floobits
 .floo
 .flooignore
+
+gpg/
