@@ -14,6 +14,7 @@ import java.util.Map;
 /**
  * Created by nfischer on 6/6/15.
  */
+@Deprecated
 public class HttpRequest implements HttpMessage{
 
     private Map<String, String> headers;

@@ -28,6 +28,8 @@ public class JsonHasherTest {
 		simpleMap.put("sciNote", Double.valueOf("3.7e-4"));
 		simpleMap.put("bool", true);
 		simpleMap.put("null", JsonNull.NULL);
+		simpleMap.put("nullprim", null);
+		
 		simpleMap.put("emptyList", new ArrayList<>());
 
 		simpleList = new ArrayList<>();
@@ -36,7 +38,7 @@ public class JsonHasherTest {
 		simpleList.add(5.5d);
 		simpleList.add(Double.valueOf("9.3e-200"));
 		simpleList.add(true);
-		simpleList.add(JsonNull.NULL);
+		simpleList.add(null);
 
 		map.put("map", simpleMap);
 		map.put("array", simpleList);

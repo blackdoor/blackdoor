@@ -24,7 +24,7 @@ public class Server implements Runnable {
 	 * Multiplied by the number of cores in the system, this determines how many incoming connections will sit idle
 	 * before the server stops accepting connections.
 	 */
-	public static final double DEFAULT_QUEUE_SIZE_FACTOR = 4;
+	public static final double DEFAULT_QUEUE_SIZE_FACTOR = 8;
 	/**
 	 * Multiplied by the number of cores in the system, this determines the minimum number of threads that will always
 	 * be alive, even if there are no connections.

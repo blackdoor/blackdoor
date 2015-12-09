@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * Created by nfischer on 6/10/15.
  */
+@Deprecated
 public interface HttpMessage {
     byte[] getBody();
     String getVersion();
