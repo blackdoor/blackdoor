@@ -9,7 +9,7 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /**
- * @author Nathan Fischer <nfischer3 @ zagmail.gonzaga.edu>
+ * @author Nathan Fischer &lt;nfischer3@zagmail.gonzaga.edu&gt;
  * @version 1.0
  */
 public class CSV {

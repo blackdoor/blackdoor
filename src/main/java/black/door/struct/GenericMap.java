@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * An object that maps String keys to multiple different generic values. A value
  * can be any type, class or primitive. A GenericMap need not all contain values
  * of the same type, and indeed should not. A map may only contain one of each key.
- * This class is pretty useless. Just use a Map<String, Object> and forget you ever saw this.
+ * This class is pretty useless. Just use a Map&lt;String, Object&gt; and forget you ever saw this.
  * @author nfischer3
  * 
  */

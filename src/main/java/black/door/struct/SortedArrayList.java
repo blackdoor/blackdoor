@@ -124,7 +124,7 @@ public class SortedArrayList<E> extends ArrayList<E> {
 	 *         list: the index of the first element greater than the key, or
 	 *         list.size() if all elements in the list are less than the
 	 *         specified key. Note that this guarantees that the return value
-	 *         will be >= 0 if and only if the key is found.
+	 *         will be &gt;= 0 if and only if the key is found.
 	 * @see java.util.ArrayList#indexOf(java.lang.Object)
 	 */
 	@Override
