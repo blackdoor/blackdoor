@@ -80,7 +80,7 @@ public class ByteQueue {
 	}
 	
 	/**
-	 * Grow or shrink the queue to newSize bytes. If newSize < filled() an underflow exception will be thrown.
+	 * Grow or shrink the queue to newSize bytes. If newSize &lt; filled() an underflow exception will be thrown.
 	 * @param newSize
 	 */
 	public void resize(int newSize){

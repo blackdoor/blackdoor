@@ -12,14 +12,14 @@ import java.text.StringCharacterIterator;
 import java.util.*;
 
 /**
- * @author Nathan Fischer <nfischer921@gmail.com>nfischer921@gmail.com</nfischer921@gmail.com>
+ * @author Nathan Fischer &lt;nfischer921@gmail.com&gt;
  * @since 2015-5-28
  *
  * Derulo is the main class to build and parse JSON strings. It can be used with JsonArray and JsonObject, but any
  * Collection or Map (respectively) can work in their place.
  *
  * A simple use of Derulo would be as follows:
- *  Map<String, Object> simpleMap = new HashMap<>();
+ *  Map&lt;String, Object&gt; simpleMap = new HashMap&lt;&gt;();
  *  simpleMap.put("string", "sample");
  *  simpleMap.put("int", 5);
  *  String jsonString = Derulo.toJSON(simpleMap);

@@ -8,7 +8,7 @@ import black.door.json.tokens.ValueToken;
 import java.util.*;
 
 /**
- * @author Nathan Fischer <nfischer921@gmail.com>nfischer921@gmail.com</nfischer921@gmail.com>
+ * @author Nathan Fischer &lt;nfischer921@gmail.com&gt;
  * @since 2015-5-28
  *
  * A class to represent a JSON array. Aside from constructor to parse JSON strings this class is just a List with
