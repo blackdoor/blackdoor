@@ -77,7 +77,7 @@ public class SHECipher implements Cipher{
 	
 	/**
 	 * Initializes the cipher with key and iv
-	 * @param IV An initialization vector to use for the cipher.
+	 * @param iv An initialization vector to use for the cipher.
 	 * @param key A key to encrypt with.
 	 * @throws InvalidKeyException 
 	 */
