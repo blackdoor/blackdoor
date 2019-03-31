@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by nfischer on 5/23/15.
@@ -55,7 +55,7 @@ public class DeruloTest {
     @Test
     public void fromJson(){
         String m2 = Derulo.toJSON(map);
-        assertTrue(map.equals(Derulo.fromJSON(m2)));
+        assertEquals(map, Derulo.fromJSON(m2));
     }
 
     @Test
@@ -63,7 +63,7 @@ public class DeruloTest {
         String m2 = Derulo.toJSON(simpleMap);
         Map parsed = new JsonObject(m2);
         //System.out.println(Derulo.toJSON(2, parsed));
-        assertTrue(simpleMap.equals(parsed));
+        assertEquals(simpleMap, parsed);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class DeruloTest {
         String arr = Derulo.toJSON(simpleList);
         List parsed = new JsonArray(arr);
         //System.out.println(Derulo.toJSON(4, parsed));
-        assertTrue(simpleList.equals(parsed));
+        assertEquals(simpleList, parsed);
     }
 
     @Test

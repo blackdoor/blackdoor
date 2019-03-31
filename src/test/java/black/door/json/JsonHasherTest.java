@@ -53,7 +53,7 @@ public class JsonHasherTest {
 
 		List<String> mapKeyset = new ArrayList<>(map.keySet());
 		Collections.sort(mapKeyset);
-		assertTrue(new ArrayList<>(json.keySet()).equals(mapKeyset));
+		assertEquals(new ArrayList<>(json.keySet()), mapKeyset);
 
 		System.out.println(cannon);
 		System.out.println(Derulo.toJSON(2,Derulo.fromJSON(cannon)));
@@ -88,6 +88,6 @@ public class JsonHasherTest {
 		copy.remove("null");
 
 		assertArrayEquals(JsonHasher.hash(copy), hasher.hash());
-		assertTrue(original.equals(simpleMap));
+		assertEquals(original, simpleMap);
 	}
 }

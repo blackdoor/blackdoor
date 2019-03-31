@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SocketIOWrapperTest {
@@ -43,7 +44,7 @@ public class SocketIOWrapperTest {
 				String inString;
 				try {
 					inString = io1.read();
-					assertTrue(inString.equals(testString));
+					assertEquals(inString, testString);
 					io1.write(inString);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -54,7 +55,7 @@ public class SocketIOWrapperTest {
 		
 		io2.write(testString);
 		String inString = io2.read();
-		assertTrue(inString.equals(testString));
+		assertEquals(inString, testString);
 	}
 
 	public void tearDown() throws IOException {

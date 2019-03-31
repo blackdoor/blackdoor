@@ -1,7 +1,5 @@
 package black.door.net.http.tools;
 
-import static black.door.util.DBP.printdebugln;
-import static black.door.util.DBP.println;
 import static org.junit.Assert.assertEquals;
 
 import black.door.util.DBP;
@@ -18,6 +16,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -111,7 +110,7 @@ public class HttpTest {
                 "Accept: */*\n\n";
 
         HttpRequest simpleRequest = HttpRequest.parse(simple.getBytes(StandardCharsets.US_ASCII));
-        assertTrue(simpleRequest.getVerb().equals(HttpVerb.POST));
+        assertEquals(simpleRequest.getVerb(), HttpVerb.POST);
         System.out.println(simpleRequest);
         
 		//POST

@@ -28,10 +28,10 @@ public class URLToolsTest {
 	public void testParseQueries() throws Exception {
 		Map queries = URLTools.parseQueries(googleSearch);
 		System.out.println(queries);
-		assertTrue(queries.get("sourceid").equals("chrome-instant"));
-		assertTrue(queries.get("ion").equals("1"));
-		assertTrue(queries.get("espv").equals("2"));
-		assertTrue(queries.get("ie").equals("UTF-8"));
+		assertEquals(queries.get("sourceid"), "chrome-instant");
+		assertEquals(queries.get("ion"), "1");
+		assertEquals(queries.get("espv"), "2");
+		assertEquals(queries.get("ie"), "UTF-8");
 
 		try {
 			assertTrue(URLTools.parseQueries(jsSite).isEmpty());
@@ -45,9 +45,9 @@ public class URLToolsTest {
 	public void testParseRef(){
 		Map refs = URLTools.parseRef(googleSearch);
 		System.out.println(refs);
-		assertTrue(refs.get("q").equals("sample%20url"));
+		assertEquals(refs.get("q"), "sample%20url");
 
 		Map anchor = URLTools.parseRef(jsSite);
-		assertTrue(anchor.get("id").equals("people"));
+		assertEquals(anchor.get("id"), "people");
 	}
 }
