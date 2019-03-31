@@ -1,7 +1,5 @@
 package black.door.net.http.tools;
 
-import static black.door.util.DBP.printdebugln;
-import static black.door.util.DBP.println;
 import static org.junit.Assert.assertEquals;
 
 import black.door.util.DBP;
