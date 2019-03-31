@@ -85,11 +85,7 @@ public enum DBP {
 				js.put("channel", name);
 				if(printLine)
 					js.put("line", line);
-				org.json.JSONArray arr = new org.json.JSONArray();
-				for(Object obj : o){
-					
-					arr.put(obj);
-				}
+				org.json.JSONArray arr = new org.json.JSONArray(o);
 				js.put("message", arr);
 				sb.append(js);
 				sb.append('\n');
