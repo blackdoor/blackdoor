@@ -133,21 +133,6 @@ public class SHECipher implements Cipher{
 		return Misc.XORintoA(buffer.deQueue(input.length), input);
 	}
 	
-	/**
-	 * Zero's out memory where the key is stored.
-	 * After calling this method init() needs to be called again.
-	 *
-	public void zeroKey(){
-		for(int i = 0; i < key.length; i++){
-			key[i] = 0x0;
-		}
-		for(int i = 0; i < prehash.length; i++){
-			key[i] = 0x0;
-		}
-		cfg = false;
-	}
-	*/
-	
 	protected void bufferKeystream(){
 		int i = blockNo % key.length;
 		int inc = (blockNo/key.length) + 1;
